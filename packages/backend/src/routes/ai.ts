@@ -1,12 +1,9 @@
 import { Hono } from "hono";
-import { summarize, generateTitle } from "../lib/ai.js";
+import { summarize, generateTitle, AIError } from "../lib/ai.js";
 import { db } from "../lib/db.js";
-import type {
-  SummarizeRequest,
-  SummarizeResponse,
-  SummaryListItem,
-  SummaryDetail,
-} from "@gosta-assignemnt/shared";
+import { logger } from "../lib/logger.js";
+import { summarizeRequestSchema, idParamSchema } from "../lib/schemas.js";
+import type { SummarizeResponse, SummaryListItem, SummaryDetail } from "@gosta-assignemnt/shared";
 
 export const aiRoute = new Hono();
 
@@ -31,10 +28,28 @@ aiRoute.use("/*", async (c, next) => {
 });
 
 aiRoute.post("/summarize", async (c) => {
-  const body = await c.req.json<SummarizeRequest>();
-  const { text, language, style = "paragraph", tone = "neutral" } = body;
+  let rawBody: unknown;
+  try {
+    rawBody = await c.req.json();
+  } catch {
+    return c.json({ error: "Invalid JSON in request body" }, 400);
+  }
 
-  const summary = await summarize({ text, language, style, tone });
+  const parsed = summarizeRequestSchema.safeParse(rawBody);
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.flatten().fieldErrors }, 400);
+  }
+  const { text, language, style, tone } = parsed.data;
+
+  let summary: string;
+  try {
+    summary = await summarize({ text, language, style, tone });
+  } catch (err) {
+    if (err instanceof AIError) {
+      return c.json({ error: err.message }, err.httpStatus as 400 | 429 | 502 | 503);
+    }
+    throw err;
+  }
 
   const row = await db
     .insertInto("summaries")
@@ -49,10 +64,15 @@ aiRoute.post("/summarize", async (c) => {
     .returning("id")
     .executeTakeFirstOrThrow();
 
-  // Generate title in the background — don't await
+  // Generate title in the background
   generateTitle(summary, language)
     .then((title) => db.updateTable("summaries").set({ title }).where("id", "=", row.id).execute())
-    .catch(console.error);
+    .catch((err) =>
+      logger.error("title generation failed", {
+        summaryId: row.id,
+        error: err instanceof Error ? err.message : String(err),
+      }),
+    );
 
   const result: SummarizeResponse = { id: row.id, summary };
   return c.json(result);
@@ -69,7 +89,11 @@ aiRoute.get("/summaries", async (c) => {
 });
 
 aiRoute.get("/summaries/:id", async (c) => {
-  const id = Number(c.req.param("id"));
+  const parsed = idParamSchema.safeParse(c.req.param());
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.flatten().fieldErrors }, 400);
+  }
+  const { id } = parsed.data;
   const row = await db.selectFrom("summaries").selectAll().where("id", "=", id).executeTakeFirst();
 
   if (!row) return c.json({ error: "Not found" }, 404);
@@ -88,7 +112,11 @@ aiRoute.get("/summaries/:id", async (c) => {
 });
 
 aiRoute.delete("/summaries/:id", async (c) => {
-  const id = Number(c.req.param("id"));
+  const parsed = idParamSchema.safeParse(c.req.param());
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.flatten().fieldErrors }, 400);
+  }
+  const { id } = parsed.data;
   const result = await db.deleteFrom("summaries").where("id", "=", id).executeTakeFirst();
   if (!result.numDeletedRows) return c.json({ error: "Not found" }, 404);
   return c.json({ ok: true });

@@ -11,13 +11,14 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "0.52.0",
+    "@gosta-assignemnt/shared": "workspace:*",
     "@hono/node-server": "1.19.11",
     "better-sqlite3": "11.10.0",
     "hono": "4.12.8",
     "kysely": "0.27.6",
-    "@anthropic-ai/sdk": "0.52.0",
     "openai": "4.104.0",
-    "@gosta-assignemnt/shared": "workspace:*"
+    "zod": "3.25.76"
   },
   "devDependencies": {
     "@types/better-sqlite3": "7.6.13",
