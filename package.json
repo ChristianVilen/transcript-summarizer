@@ -2,6 +2,7 @@
   "name": "gosta-assignemnt",
   "private": true,
   "scripts": {
+    "start": "turbo build && node packages/backend/dist/index.js",
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",
