@@ -1,22 +1,57 @@
 import { useEffect, useState } from "react";
-import type { SummaryDetail as SummaryDetailType } from "@gosta-assignemnt/shared";
+import type { SummarizeRequest, SummarizeResponse, SummaryDetail as SummaryDetailType, Tone } from "@gosta-assignemnt/shared";
+import { TONES } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
+
+const TONE_LABELS: Record<Tone, string> = {
+  clinical: "Clinical",
+  simple: "Simple",
+  detailed: "Detailed",
+  neutral: "Neutral",
+};
 
 interface Props {
   id: number;
   onBack: () => void;
+  onRegenerated: (id: number) => void;
 }
 
-export const SummaryDetail = ({ id, onBack }: Props) => {
+export const SummaryDetail = ({ id, onBack, onRegenerated }: Props) => {
   const [detail, setDetail] = useState<SummaryDetailType | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [regenerating, setRegenerating] = useState(false);
+  const [tone, setTone] = useState<Tone>("clinical");
+  const [style, setStyle] = useState<"paragraph" | "bullets">("paragraph");
+
+  async function handleRegenerate() {
+    if (!detail || regenerating) return;
+    setRegenerating(true);
+    setError(null);
+    try {
+      const res = await api.post<SummarizeResponse>("/api/ai/summarize", {
+        text: detail.original_text,
+        language: detail.language,
+        tone,
+        style,
+      } as SummarizeRequest);
+      onRegenerated(res.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Regeneration failed");
+    } finally {
+      setRegenerating(false);
+    }
+  }
 
   useEffect(() => {
     setDetail(null);
     setError(null);
     api
       .get<SummaryDetailType>(`/api/ai/summaries/${id}`)
-      .then(setDetail)
+      .then((d) => {
+        setDetail(d);
+        setTone(d.tone as Tone);
+        setStyle(d.style as "paragraph" | "bullets");
+      })
       .catch((e) => setError(e instanceof Error ? e.message : "Failed to load summary"));
   }, [id]);
 
@@ -41,10 +76,32 @@ export const SummaryDetail = ({ id, onBack }: Props) => {
 
       {detail && (
         <>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge label="Language" value={detail.language} />
-            <Badge label="Tone" value={detail.tone} />
-            <Badge label="Style" value={detail.style} />
+            <select
+              value={tone}
+              onChange={(e) => setTone(e.target.value as Tone)}
+              className="rounded-md border border-border bg-surface-raised px-2 py-1 text-xs text-text focus:border-primary focus:outline-none"
+            >
+              {TONES.map((t) => (
+                <option key={t} value={t}>{TONE_LABELS[t]}</option>
+              ))}
+            </select>
+            <select
+              value={style}
+              onChange={(e) => setStyle(e.target.value as "paragraph" | "bullets")}
+              className="rounded-md border border-border bg-surface-raised px-2 py-1 text-xs text-text focus:border-primary focus:outline-none"
+            >
+              <option value="paragraph">Paragraph</option>
+              <option value="bullets">Bullets</option>
+            </select>
+            <button
+              onClick={handleRegenerate}
+              disabled={regenerating}
+              className="ml-auto rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-text-muted hover:text-text hover:border-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {regenerating ? "Regenerating…" : "Regenerate ↺"}
+            </button>
           </div>
 
           <section className="space-y-2">

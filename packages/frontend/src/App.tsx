@@ -117,7 +117,11 @@ export default function App() {
         <main className="flex-1 overflow-y-auto px-8 py-8">
           <div className="max-w-2xl mx-auto">
             {selectedId !== null ? (
-              <SummaryDetail id={selectedId} onBack={() => setSelectedId(null)} />
+              <SummaryDetail
+                id={selectedId}
+                onBack={() => setSelectedId(null)}
+                onRegenerated={(newId) => { handleSummarized(newId); setSelectedId(newId); }}
+              />
             ) : (
               <Summarizer
                 onSummarized={handleSummarized}
