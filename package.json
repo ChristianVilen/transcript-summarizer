@@ -6,10 +6,12 @@
     "build": "turbo build",
     "lint": "turbo lint",
     "test": "turbo test",
+    "format": "prettier --write \"packages/*/src/**/*.{ts,tsx}\"",
     "db:migrate": "kysely migrate:latest --cwd packages/backend",
     "db:new": "kysely migrate:make --cwd packages/backend"
   },
   "devDependencies": {
+    "prettier": "^3.8.1",
     "turbo": "^2",
     "typescript": "^5.7"
   },
