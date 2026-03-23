@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { AppHeader } from "./components/AppHeader";
 import { Sidebar } from "./components/Sidebar";
 import { Summarizer } from "./components/Summarizer";
@@ -10,22 +11,30 @@ export default function App() {
   const health = useHealth();
   const { password, setPassword } = usePassword();
   const { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete } = useSummaryHistory();
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
     <div className="min-h-screen bg-bg text-text flex flex-col">
-      <AppHeader password={password} onPasswordChange={setPassword} health={health} />
+      <AppHeader
+        password={password}
+        onPasswordChange={setPassword}
+        health={health}
+        onMenuOpen={() => setDrawerOpen(true)}
+      />
 
       <div className="flex flex-1 overflow-hidden">
         <Sidebar
           items={history}
           selectedId={selectedId}
           pendingId={pendingId}
-          onNew={() => setSelectedId(null)}
-          onSelect={setSelectedId}
+          isOpen={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onNew={() => { setSelectedId(null); setDrawerOpen(false); }}
+          onSelect={(id) => { setSelectedId(id); setDrawerOpen(false); }}
           onDelete={handleDelete}
         />
 
-        <main className="flex-1 overflow-y-auto px-8 py-8">
+        <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
           <div className="max-w-2xl mx-auto">
             {selectedId !== null ? (
               <SummaryDetail
