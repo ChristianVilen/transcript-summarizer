@@ -1,0 +1,30 @@
+{
+  "name": "@gosta-assignemnt/frontend",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "react": "^19",
+    "react-dom": "^19",
+    "@gosta-assignemnt/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^4",
+    "@tailwindcss/vite": "^4",
+    "tailwindcss": "^4",
+    "typescript": "^5.7",
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/react": "^16",
+    "jsdom": "^25",
+    "vite": "^6",
+    "vitest": "^3"
+  }
+}
