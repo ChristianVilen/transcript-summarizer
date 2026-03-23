@@ -13,11 +13,10 @@ const TONE_LABELS: Record<Tone, string> = {
 
 interface Props {
   id: number;
-  onBack: () => void;
   onRegenerated: (id: number, meta: { language: string; tone: string; style: string }) => void;
 }
 
-export const SummaryDetail = ({ id, onBack, onRegenerated }: Props) => {
+export const SummaryDetail = ({ id, onRegenerated }: Props) => {
   const [detail, setDetail] = useState<SummaryDetailType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [regenerating, setRegenerating] = useState(false);
@@ -58,13 +57,6 @@ export const SummaryDetail = ({ id, onBack, onRegenerated }: Props) => {
 
   return (
     <div className="space-y-6">
-      <button
-        onClick={onBack}
-        className="text-sm text-text-muted hover:text-text transition-colors"
-      >
-        ← New summary
-      </button>
-
       {error && (
         <p className="rounded-md border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
           {error}

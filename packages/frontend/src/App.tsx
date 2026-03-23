@@ -20,6 +20,7 @@ export default function App() {
           items={history}
           selectedId={selectedId}
           pendingId={pendingId}
+          onNew={() => setSelectedId(null)}
           onSelect={setSelectedId}
           onDelete={handleDelete}
         />
@@ -29,7 +30,6 @@ export default function App() {
             {selectedId !== null ? (
               <SummaryDetail
                 id={selectedId}
-                onBack={() => setSelectedId(null)}
                 onRegenerated={(newId, meta) => { handleSummarized(newId, meta); setSelectedId(newId); }}
               />
             ) : (
