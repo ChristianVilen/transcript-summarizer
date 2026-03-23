@@ -21,6 +21,10 @@ graph TD
 - **AI**: Anthropic Claude in production, LM Studio for local dev
 - **Monorepo**: pnpm workspaces + Turborepo
 
+## Prompts
+
+- [Claude prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
+
 ## Getting Started
 
 ### Prerequisites
@@ -40,8 +44,9 @@ pnpm install
 Edit `.env.local` for local development:
 
 Variables:
+
 - `LM_STUDIO_URL`: Base URL of your LM Studio server
-- `AI_MODEL`: Model name loaded in LM Studio 
+- `AI_MODEL`: Model name loaded in LM Studio
 
 **Production:** Set `ANTHROPIC_API_KEY` and `NODE_ENV=production` as environment variables in your hosting platform.
 
