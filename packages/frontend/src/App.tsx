@@ -20,7 +20,7 @@ export default function App() {
       .get<HealthResponse>("/api/health")
       .then(setHealth)
       .catch(() => null);
-    fetchHistory();
+    fetchHistory(true);
   }, []);
 
   useEffect(() => {
@@ -32,10 +32,15 @@ export default function App() {
     }
   }, [password]);
 
-  function fetchHistory() {
+  function fetchHistory(autoSelect = false) {
     api
       .get<SummaryListItem[]>("/api/ai/summaries")
-      .then(setHistory)
+      .then((items) => {
+        setHistory(items);
+        if (autoSelect && items.length > 0) {
+          setSelectedId(items[0].id);
+        }
+      })
       .catch(() => null);
   }
 
