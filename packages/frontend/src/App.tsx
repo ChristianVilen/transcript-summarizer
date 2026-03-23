@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { AppHeader } from "./components/AppHeader";
 import { Sidebar } from "./components/Sidebar";
-import { Summarizer } from "./components/Summarizer";
-import { SummaryDetail } from "./components/SummaryDetail";
+import { SummaryWorkspace } from "./components/SummaryWorkspace";
 import { useHealth } from "./hooks/useHealth";
 import { usePassword } from "./hooks/usePassword";
 import { useSummaryHistory } from "./hooks/useSummaryHistory";
@@ -36,18 +35,12 @@ export default function App() {
 
         <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
           <div className="max-w-2xl mx-auto">
-            {selectedId !== null ? (
-              <SummaryDetail
-                id={selectedId}
-                onRegenerated={(newId, meta) => { handleSummarized(newId, meta); setSelectedId(newId); }}
-              />
-            ) : (
-              <Summarizer
-                onSummarized={handleSummarized}
-                password={password}
-                passwordRequired={health?.passwordRequired ?? false}
-              />
-            )}
+            <SummaryWorkspace
+              selectedId={selectedId}
+              password={password}
+              passwordRequired={health?.passwordRequired ?? false}
+              onSummarized={(id, meta) => { handleSummarized(id, meta); setSelectedId(id); }}
+            />
           </div>
         </main>
       </div>
