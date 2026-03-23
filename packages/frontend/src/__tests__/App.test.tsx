@@ -5,6 +5,6 @@ import App from "../App";
 describe("App", () => {
   it("renders the header", () => {
     render(<App />);
-    expect(screen.getByText("Gosta Assignment")).toBeDefined();
+    expect(screen.getByText("Transcript Summarizer")).toBeDefined();
   });
 });
