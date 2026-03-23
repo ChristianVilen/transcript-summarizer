@@ -1,0 +1,14 @@
+import { describe, it, expect } from "vitest";
+import app from "../../index.js";
+
+describe("GET /api/health", () => {
+  it("returns status and db fields", async () => {
+    const res = await app.request("/api/health");
+    expect(res.status).toBe(200);
+
+    const body = await res.json();
+    expect(body).toHaveProperty("status");
+    expect(body).toHaveProperty("timestamp");
+    expect(body).toHaveProperty("db");
+  });
+});
