@@ -61,7 +61,7 @@ function buildMessages({ text, language, style, tone }: SummarizeRequest): {
       ? "Format the summary as concise bullet points."
       : "Format the summary as a single cohesive paragraph.";
 
-  const toneInstruction = TONE_DESCRIPTIONS[tone] ?? `Use a ${tone} tone.`;
+  const toneInstruction = (tone && TONE_DESCRIPTIONS[tone]) ?? `Use a ${tone} tone.`;
 
   const system = [
     `You are a medical transcription assistant. Your task is to summarize the provided text.`,
@@ -71,5 +71,5 @@ function buildMessages({ text, language, style, tone }: SummarizeRequest): {
     `Output only the summary — no preamble, no explanation, no extra commentary.`,
   ].join(" ");
 
-  return { system, user: text };
+  return { system, user: `<transcript>\n${text}\n</transcript>` };
 }
