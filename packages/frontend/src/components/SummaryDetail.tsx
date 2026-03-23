@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { SummarizeRequest, SummarizeResponse, SummaryDetail as SummaryDetailType, Tone } from "@gosta-assignemnt/shared";
 import { TONES } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
+import { SummaryContent } from "./SummaryContent";
 
 const TONE_LABELS: Record<Tone, string> = {
   clinical: "Clinical",
@@ -109,7 +110,7 @@ export const SummaryDetail = ({ id, onBack, onRegenerated }: Props) => {
               Summary
             </h2>
             <div className="rounded-lg border border-primary/30 bg-surface p-5 text-text leading-relaxed">
-              <p>{detail.summary}</p>
+              <SummaryContent text={detail.summary} />
             </div>
           </section>
 

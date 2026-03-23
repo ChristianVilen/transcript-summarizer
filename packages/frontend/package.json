@@ -10,20 +10,21 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@gosta-assignemnt/shared": "workspace:*",
     "react": "^19",
     "react-dom": "^19",
-    "@gosta-assignemnt/shared": "workspace:*"
+    "react-markdown": "^10.1.0"
   },
   "devDependencies": {
+    "@tailwindcss/vite": "^4",
+    "@testing-library/jest-dom": "^6",
+    "@testing-library/react": "^16",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^4",
-    "@tailwindcss/vite": "^4",
+    "jsdom": "^25",
     "tailwindcss": "^4",
     "typescript": "^5.7",
-    "@testing-library/jest-dom": "^6",
-    "@testing-library/react": "^16",
-    "jsdom": "^25",
     "vite": "^6",
     "vitest": "^3"
   }

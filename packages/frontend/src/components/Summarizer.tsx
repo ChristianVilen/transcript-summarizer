@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import type { SummarizeRequest, SummarizeResponse, Tone } from "@gosta-assignemnt/shared";
 import { LANGUAGES } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
+import { SummaryContent } from "./SummaryContent";
 
 const TONES: { value: Tone; label: string; description: string }[] = [
   { value: "clinical", label: "Clinical", description: "Formal medical language, precise terminology." },
@@ -157,7 +158,7 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
 
       {summary !== null && (
         <div className="rounded-lg border border-border bg-surface p-5 text-text leading-relaxed">
-          <p>{summary}</p>
+          <SummaryContent text={summary} />
         </div>
       )}
     </div>
