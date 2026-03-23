@@ -19,6 +19,7 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
   const [text, setText] = useState("");
   const [language, setLanguage] = useState("English");
   const [tone, setTone] = useState<Tone>("clinical");
+  const [style, setStyle] = useState<"paragraph" | "bullets">("paragraph");
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -56,6 +57,7 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
         text,
         language,
         tone,
+        style,
       } satisfies SummarizeRequest);
       setSummary(res.summary);
       onSummarized(res.id);
@@ -126,6 +128,15 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
               {t.label} - {t.description}
             </option>
           ))}
+        </select>
+
+        <select
+          value={style}
+          onChange={(e) => setStyle(e.target.value as "paragraph" | "bullets")}
+          className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
+        >
+          <option value="paragraph">Paragraph</option>
+          <option value="bullets">Bullets</option>
         </select>
 
         <button
