@@ -1,13 +1,14 @@
 import { Hono } from "hono";
-import { summarize, generateTitle, AIError } from "../lib/ai.js";
+import { streamSSE } from "hono/streaming";
+import { summarizeStream, generateTitle, AIError } from "../lib/ai.js";
 import { db } from "../lib/db.js";
 import { logger } from "../lib/logger.js";
+import { titleEvents } from "../lib/titleEvents.js";
 import { summarizeRequestSchema, idParamSchema } from "../lib/schemas.js";
-import type { SummarizeResponse, SummaryListItem, SummaryDetail } from "@gosta-assignemnt/shared";
+import type { SummaryListItem, SummaryDetail } from "@gosta-assignemnt/shared";
 
 export const aiRoute = new Hono();
 
-// Password protection middleware for AI endpoints
 aiRoute.use("/*", async (c, next) => {
   if (process.env.NODE_ENV !== "production") {
     await next();
@@ -41,41 +42,41 @@ aiRoute.post("/summarize", async (c) => {
   }
   const { text, language, style, tone } = parsed.data;
 
-  let summary: string;
-  try {
-    summary = await summarize({ text, language, style, tone });
-  } catch (err) {
-    if (err instanceof AIError) {
-      return c.json({ error: err.message }, err.httpStatus as 400 | 429 | 502 | 503);
+  return streamSSE(c, async (stream) => {
+    let fullText = "";
+
+    try {
+      fullText = await summarizeStream({ text, language, style, tone }, async (chunk) => {
+        await stream.writeSSE({ data: JSON.stringify({ type: "chunk", text: chunk }) });
+      });
+    } catch (err) {
+      if (err instanceof AIError) {
+        await stream.writeSSE({ data: JSON.stringify({ type: "error", message: err.message }) });
+        return;
+      }
+      throw err;
     }
-    throw err;
-  }
 
-  const row = await db
-    .insertInto("summaries")
-    .values({
-      original_text: text,
-      summary,
-      language,
-      style,
-      tone,
-      title: null,
-    })
-    .returning("id")
-    .executeTakeFirstOrThrow();
+    const row = await db
+      .insertInto("summaries")
+      .values({ original_text: text, summary: fullText, language, style, tone, title: null })
+      .returning("id")
+      .executeTakeFirstOrThrow();
 
-  // Generate title in the background
-  generateTitle(summary, language)
-    .then((title) => db.updateTable("summaries").set({ title }).where("id", "=", row.id).execute())
-    .catch((err) =>
-      logger.error("title generation failed", {
-        summaryId: row.id,
-        error: err instanceof Error ? err.message : String(err),
-      }),
-    );
+    generateTitle(fullText, language)
+      .then((title) =>
+        db.updateTable("summaries").set({ title }).where("id", "=", row.id).execute()
+          .then(() => titleEvents.emit(`title:${row.id}`, title))
+      )
+      .catch((err) =>
+        logger.error("title generation failed", {
+          summaryId: row.id,
+          error: err instanceof Error ? err.message : String(err),
+        })
+      );
 
-  const result: SummarizeResponse = { id: row.id, summary };
-  return c.json(result);
+    await stream.writeSSE({ data: JSON.stringify({ type: "done", id: row.id }) });
+  });
 });
 
 aiRoute.get("/summaries", async (c) => {
@@ -100,15 +101,46 @@ aiRoute.get("/summaries/:id", async (c) => {
 
   const { id: rowId, title, language, tone, style, created_at, original_text, summary } = row;
   return c.json({
-    id: rowId,
-    title,
-    language,
-    tone,
-    style,
-    created_at,
-    original_text,
-    summary,
+    id: rowId, title, language, tone, style, created_at, original_text, summary,
   } satisfies SummaryDetail);
+});
+
+aiRoute.get("/summaries/:id/title-stream", async (c) => {
+  const parsed = idParamSchema.safeParse(c.req.param());
+  if (!parsed.success) {
+    return c.json({ error: parsed.error.flatten().fieldErrors }, 400);
+  }
+  const { id } = parsed.data;
+
+  const row = await db.selectFrom("summaries").select("title").where("id", "=", id).executeTakeFirst();
+  if (!row) return c.json({ error: "Not found" }, 404);
+
+  return streamSSE(c, async (stream) => {
+    if (row.title) {
+      await stream.writeSSE({ data: JSON.stringify({ title: row.title }) });
+      return;
+    }
+
+    await new Promise<void>((resolve) => {
+      const timeout = setTimeout(() => {
+        resolve();
+      }, 35000);
+
+      const handler = async (title: string) => {
+        clearTimeout(timeout);
+        await stream.writeSSE({ data: JSON.stringify({ title }) });
+        resolve();
+      };
+
+      titleEvents.once(`title:${id}`, handler);
+
+      stream.onAbort(() => {
+        clearTimeout(timeout);
+        titleEvents.removeListener(`title:${id}`, handler);
+        resolve();
+      });
+    });
+  });
 });
 
 aiRoute.delete("/summaries/:id", async (c) => {

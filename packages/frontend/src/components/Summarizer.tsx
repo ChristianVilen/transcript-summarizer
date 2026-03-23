@@ -1,6 +1,11 @@
 import { useRef, useState } from "react";
-import type { SummarizeRequest, SummarizeResponse, Tone } from "@gosta-assignemnt/shared";
+import type { SummarizeRequest, Tone } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
+
+type SummarizeEvent =
+  | { type: "chunk"; text: string }
+  | { type: "done"; id: number }
+  | { type: "error"; message: string };
 import { SummaryContent } from "./SummaryContent";
 import { LanguageSelect, ToneSelect, StyleSelect } from "./SummarySelects";
 
@@ -48,14 +53,28 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
     setError(null);
     setSummary(null);
     try {
-      const res = await api.post<SummarizeResponse>("/api/ai/summarize", {
+      let streamedText = "";
+      let doneId: number | null = null;
+      let streamError: string | null = null;
+
+      await api.postStream<SummarizeEvent>("/api/ai/summarize", {
         text,
         language,
         tone,
         style,
-      } satisfies SummarizeRequest);
-      setSummary(res.summary);
-      onSummarized(res.id, { language, tone, style });
+      } satisfies SummarizeRequest, (msg) => {
+        if (msg.type === "chunk") {
+          streamedText += msg.text;
+          setSummary(streamedText);
+        } else if (msg.type === "done") {
+          doneId = msg.id;
+        } else if (msg.type === "error") {
+          streamError = msg.message;
+        }
+      });
+
+      if (streamError) throw new Error(streamError);
+      if (doneId !== null) onSummarized(doneId, { language, tone, style });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {

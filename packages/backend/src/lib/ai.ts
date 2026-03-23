@@ -97,6 +97,66 @@ export async function summarize({
   }
 }
 
+export async function summarizeStream(
+  params: SummarizeRequest,
+  onChunk: (text: string) => Promise<void> | void,
+): Promise<string> {
+  const { system, user } = buildMessages(params);
+  const start = Date.now();
+  logger.info("ai.summarizeStream started", { model, language: params.language, style: params.style, tone: params.tone });
+
+  try {
+    let result = "";
+
+    if (anthropic) {
+      const stream = await anthropic.messages.create({
+        model,
+        max_tokens: 1024,
+        system,
+        messages: [{ role: "user", content: user }],
+        stream: true,
+      });
+      for await (const event of stream) {
+        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+          result += event.delta.text;
+          await onChunk(event.delta.text);
+        }
+      }
+    } else {
+      const stream = await lmStudio!.chat.completions.create({
+        model,
+        messages: [
+          { role: "system", content: system },
+          { role: "user", content: user },
+        ],
+        stream: true,
+      });
+      for await (const chunk of stream) {
+        const text = chunk.choices[0]?.delta?.content ?? "";
+        if (text) {
+          result += text;
+          await onChunk(text);
+        }
+      }
+    }
+
+    if (!result) {
+      throw new AIError("AI returned an empty response", "unknown", 502);
+    }
+
+    logger.info("ai.summarizeStream completed", { model, duration: Date.now() - start });
+    return result;
+  } catch (err) {
+    if (err instanceof AIError) {
+      logger.warn("ai.summarizeStream failed", { model, code: err.code, duration: Date.now() - start });
+      throw err;
+    }
+    const classified = classifyError(err);
+    logger.warn("ai.summarizeStream failed", { model, code: classified.code, error: classified.message, duration: Date.now() - start });
+    throw classified;
+  }
+}
+
 export async function generateTitle(summary: string, language: string): Promise<string> {
   const system = `You are a medical transcription assistant. Generate a short, descriptive title (maximum 8 words) for the following summary. Write the title in ${language}. Output only the title — no quotes, no punctuation at the end, no extra commentary.`;
   const start = Date.now();
