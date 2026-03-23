@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+* {
+  font-family: "Outfit", sans-serif;
+}
+
+h1, h2, h3 {
+  font-family: "Syne", sans-serif;
+}
+
 @theme {
   --color-*: initial;
 
