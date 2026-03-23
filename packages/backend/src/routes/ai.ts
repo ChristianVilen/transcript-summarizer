@@ -86,3 +86,10 @@ aiRoute.get("/summaries/:id", async (c) => {
     summary,
   } satisfies SummaryDetail);
 });
+
+aiRoute.delete("/summaries/:id", async (c) => {
+  const id = Number(c.req.param("id"));
+  const result = await db.deleteFrom("summaries").where("id", "=", id).executeTakeFirst();
+  if (!result.numDeletedRows) return c.json({ error: "Not found" }, 404);
+  return c.json({ ok: true });
+});

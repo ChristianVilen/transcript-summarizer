@@ -54,5 +54,11 @@ export function useSummaryHistory() {
     pollForTitle(id);
   }
 
-  return { history, selectedId, setSelectedId, pendingId, handleSummarized };
+  async function handleDelete(id: number) {
+    await api.delete(`/api/ai/summaries/${id}`);
+    setHistory((prev) => prev.filter((i) => i.id !== id));
+    if (selectedId === id) setSelectedId(null);
+  }
+
+  return { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete };
 }

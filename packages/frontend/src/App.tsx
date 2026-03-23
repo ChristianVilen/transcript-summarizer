@@ -8,7 +8,7 @@ import { useSummaryHistory } from "./hooks/useSummaryHistory";
 export default function App() {
   const health = useHealth();
   const { password, setPassword } = usePassword();
-  const { history, selectedId, setSelectedId, pendingId, handleSummarized } = useSummaryHistory();
+  const { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete } = useSummaryHistory();
 
   return (
     <div className="min-h-screen bg-bg text-text flex flex-col">
@@ -43,6 +43,7 @@ export default function App() {
               selectedId={selectedId}
               pendingId={pendingId}
               onSelect={(id) => setSelectedId(id)}
+              onDelete={handleDelete}
             />
           </div>
         </aside>

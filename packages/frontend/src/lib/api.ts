@@ -53,8 +53,18 @@ async function postStream(
   }
 }
 
+async function del(url: string): Promise<void> {
+  const headers: HeadersInit = {};
+  if (url.includes("/api/ai/") && aiPassword) {
+    headers["X-AI-Password"] = aiPassword;
+  }
+  const res = await fetch(url, { method: "DELETE", headers });
+  if (!res.ok) throw new Error(`DELETE ${url}: ${res.status}`);
+}
+
 export const api = {
   get,
   post,
   postStream,
+  delete: del,
 };
