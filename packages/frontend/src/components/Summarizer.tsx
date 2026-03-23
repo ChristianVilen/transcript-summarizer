@@ -11,7 +11,7 @@ const TONES: { value: Tone; label: string; description: string }[] = [
 ];
 
 interface Props {
-  onSummarized: (id: number) => void;
+  onSummarized: (id: number, meta: { language: string; tone: string; style: string }) => void;
   password: string;
   passwordRequired: boolean;
 }
@@ -61,7 +61,7 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
         style,
       } satisfies SummarizeRequest);
       setSummary(res.summary);
-      onSummarized(res.id);
+      onSummarized(res.id, { language, tone, style });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {

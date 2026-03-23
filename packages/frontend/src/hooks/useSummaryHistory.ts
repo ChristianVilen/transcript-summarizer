@@ -48,8 +48,11 @@ export function useSummaryHistory() {
     }, 2000);
   }
 
-  function handleSummarized(id: number) {
-    fetchHistory();
+  function handleSummarized(id: number, meta: { language: string; tone: string; style: string }) {
+    setHistory((prev) => [
+      { id, title: null, created_at: new Date().toISOString(), ...meta },
+      ...prev,
+    ]);
     setPendingId(id);
     pollForTitle(id);
   }

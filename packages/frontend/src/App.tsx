@@ -54,7 +54,7 @@ export default function App() {
               <SummaryDetail
                 id={selectedId}
                 onBack={() => setSelectedId(null)}
-                onRegenerated={(newId) => { handleSummarized(newId); setSelectedId(newId); }}
+                onRegenerated={(newId, meta) => { handleSummarized(newId, meta); setSelectedId(newId); }}
               />
             ) : (
               <Summarizer

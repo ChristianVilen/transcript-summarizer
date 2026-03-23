@@ -14,7 +14,7 @@ const TONE_LABELS: Record<Tone, string> = {
 interface Props {
   id: number;
   onBack: () => void;
-  onRegenerated: (id: number) => void;
+  onRegenerated: (id: number, meta: { language: string; tone: string; style: string }) => void;
 }
 
 export const SummaryDetail = ({ id, onBack, onRegenerated }: Props) => {
@@ -35,7 +35,7 @@ export const SummaryDetail = ({ id, onBack, onRegenerated }: Props) => {
         tone,
         style,
       } as SummarizeRequest);
-      onRegenerated(res.id);
+      onRegenerated(res.id, { language: detail.language, tone, style });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Regeneration failed");
     } finally {
