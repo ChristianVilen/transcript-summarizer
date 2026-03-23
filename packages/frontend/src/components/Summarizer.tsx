@@ -1,26 +1,18 @@
 import { useState } from "react";
-import type { SummarizeRequest, SummarizeResponse } from "@gosta-assignemnt/shared";
+import type { SummarizeRequest, SummarizeResponse, Tone } from "@gosta-assignemnt/shared";
+import { LANGUAGES } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
 
-const LANGUAGES = ["English", "Finnish", "Swedish"];
-const TONES = [
-  {
-    value: "clinical",
-    label: "Clinical",
-    description: "Formal medical language, precise terminology.",
-  },
+const TONES: { value: Tone; label: string; description: string }[] = [
+  { value: "clinical", label: "Clinical", description: "Formal medical language, precise terminology." },
   { value: "simple", label: "Simple", description: "Plain language, avoids medical jargon." },
-  {
-    value: "detailed",
-    label: "Detailed",
-    description: "Comprehensive, thorough and preserves all key findings.",
-  },
+  { value: "detailed", label: "Detailed", description: "Comprehensive, thorough and preserves all key findings." },
 ];
 
 export const Summarizer = () => {
   const [text, setText] = useState("");
   const [language, setLanguage] = useState("English");
-  const [tone, setTone] = useState("clinical");
+  const [tone, setTone] = useState<Tone>("clinical");
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +61,7 @@ export const Summarizer = () => {
 
         <select
           value={tone}
-          onChange={(e) => setTone(e.target.value)}
+          onChange={(e) => setTone(e.target.value as Tone)}
           className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
         >
           {TONES.map((t) => (
