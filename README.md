@@ -21,6 +21,26 @@ graph TD
 - **AI**: Anthropic Claude in production, LM Studio for local dev
 - **Monorepo**: pnpm workspaces + Turborepo
 
+## Features
+
+### Summarization
+- Paste text or upload a file to summarize it with a single click
+- Summaries are stored and persist across page refreshes. The most recent summary is shown automatically on load
+- Full summary history is accessible from the sidebar
+
+### Language and style
+- Choose the output language (English, Finnish, Swedish, and more)
+- Choose a tone: **Clinical** (formal medical language), **Simple** (plain language, no jargon), or **Detailed** (comprehensive, preserves all key findings)
+
+### File upload
+- Upload a plain-text file via the upload button or by dragging and dropping it onto the text area
+- Supported formats: `.txt`, `.md`, `.csv`
+- PDF and Word documents are not supported. Supporting them would require third-party parsing libraries for each format.
+
+### Security
+- AI endpoints are protected by a server-side password (`AI_PASSWORD` env var)
+- The password is entered in the UI header and saved to session storage. It persists for the duration of the browser session and is cleared when the tab is closed
+
 ## Prompts
 
 - [Claude prompting best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
