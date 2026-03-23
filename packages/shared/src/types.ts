@@ -12,6 +12,21 @@ export interface SummarizeRequest {
 }
 
 export interface SummarizeResponse {
+  id: number;
+  summary: string;
+}
+
+export interface SummaryListItem {
+  id: number;
+  title: string | null;
+  language: string;
+  tone: string;
+  style: string;
+  created_at: string;
+}
+
+export interface SummaryDetail extends SummaryListItem {
+  original_text: string;
   summary: string;
 }
 

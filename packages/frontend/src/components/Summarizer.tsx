@@ -9,7 +9,11 @@ const TONES: { value: Tone; label: string; description: string }[] = [
   { value: "detailed", label: "Detailed", description: "Comprehensive, thorough and preserves all key findings." },
 ];
 
-export const Summarizer = () => {
+interface Props {
+  onSummarized: (id: number) => void;
+}
+
+export const Summarizer = ({ onSummarized }: Props) => {
   const [text, setText] = useState("");
   const [language, setLanguage] = useState("English");
   const [tone, setTone] = useState<Tone>("clinical");
@@ -29,6 +33,7 @@ export const Summarizer = () => {
         tone,
       } satisfies SummarizeRequest);
       setSummary(res.summary);
+      onSummarized(res.id);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {

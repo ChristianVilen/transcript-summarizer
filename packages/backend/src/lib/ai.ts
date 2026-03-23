@@ -42,6 +42,30 @@ export async function summarize({
   return completion.choices[0]?.message?.content ?? "";
 }
 
+export async function generateTitle(summary: string, language: string): Promise<string> {
+  const system = `You are a medical transcription assistant. Generate a short, descriptive title (maximum 8 words) for the following summary. Write the title in ${language}. Output only the title — no quotes, no punctuation at the end, no extra commentary.`;
+
+  if (anthropic) {
+    const response = await anthropic.messages.create({
+      model,
+      max_tokens: 64,
+      system,
+      messages: [{ role: "user", content: `<summary>\n${summary}\n</summary>` }],
+    });
+    const block = response.content[0];
+    return block.type === "text" ? block.text.trim() : "Untitled";
+  }
+
+  const completion = await lmStudio!.chat.completions.create({
+    model,
+    messages: [
+      { role: "system", content: system },
+      { role: "user", content: `<summary>\n${summary}\n</summary>` },
+    ],
+  });
+  return completion.choices[0]?.message?.content?.trim() ?? "Untitled";
+}
+
 const TONE_DESCRIPTIONS: Record<Tone, string> = {
   clinical:
     "Use formal medical language with precise clinical terminology. Be concise and objective.",
