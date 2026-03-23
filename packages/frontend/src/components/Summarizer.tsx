@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { SummarizeRequest, SummarizeResponse, Tone } from "@gosta-assignemnt/shared";
 import { LANGUAGES } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
@@ -20,6 +20,29 @@ export const Summarizer = ({ onSummarized }: Props) => {
   const [summary, setSummary] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dragging, setDragging] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function readFile(file: File) {
+    const reader = new FileReader();
+    reader.onload = () => setText(reader.result as string);
+    reader.onerror = () => setError("Failed to read file");
+    reader.readAsText(file);
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    readFile(file);
+    e.target.value = "";
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) readFile(file);
+  }
 
   const handleSubmit = async () => {
     if (!text.trim() || loading) return;
@@ -43,14 +66,41 @@ export const Summarizer = ({ onSummarized }: Props) => {
 
   return (
     <div className="space-y-5">
-      <h2 className="text-2xl font-semibold text-text">
-        Paste the text you would like to have summarised here:
-      </h2>
+      <h2 className="text-2xl font-semibold text-text">New summary</h2>
+
+      <div className="flex items-center gap-2">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".txt,.md,.csv"
+          className="hidden"
+          onChange={handleFileChange}
+        />
+        <button
+          onClick={() => fileInputRef.current?.click()}
+          className="rounded-md border border-border bg-surface px-3 py-1.5 text-xs text-text-muted hover:text-text hover:border-primary transition-colors"
+        >
+          Upload file
+        </button>
+        <span className="text-xs text-text-muted opacity-40">.txt · .md · .csv</span>
+        {text && (
+          <span className="text-xs text-text-muted opacity-50 ml-auto">{text.length.toLocaleString()} characters</span>
+        )}
+      </div>
+
       <textarea
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragLeave={() => setDragging(false)}
+        onDrop={handleDrop}
+        placeholder="Paste text or drop a file here…"
         rows={12}
-        className="w-full resize-y rounded-lg border border-border bg-surface px-4 py-3 text-text placeholder:text-text-muted/40 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary/30"
+        className={`w-full resize-y rounded-lg border bg-surface px-4 py-3 text-text placeholder:text-text-muted/40 focus:outline-none focus:ring-1 transition-colors ${
+          dragging
+            ? "border-primary ring-1 ring-primary/30 bg-primary/5"
+            : "border-border focus:border-primary focus:ring-primary/30"
+        }`}
       />
 
       <div className="flex flex-wrap items-center gap-3">
