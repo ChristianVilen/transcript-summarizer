@@ -5,10 +5,12 @@ const isProd = process.env.NODE_ENV === "production";
 const model = process.env.AI_MODEL ?? (isProd ? "claude-opus-4-6" : "default");
 
 const anthropic = isProd ? new Anthropic() : null;
-const lmStudio = isProd ? null : new OpenAI({
-  baseURL: `${process.env.LM_STUDIO_URL ?? "http://127.0.0.1:1234"}/v1`,
-  apiKey: "lm-studio",
-});
+const lmStudio = isProd
+  ? null
+  : new OpenAI({
+      baseURL: `${process.env.LM_STUDIO_URL ?? "http://127.0.0.1:1234"}/v1`,
+      apiKey: "lm-studio",
+    });
 
 export interface SummarizeOptions {
   text: string;
