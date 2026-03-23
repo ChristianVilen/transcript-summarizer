@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { healthRoute } from "./routes/health.js";
 import { aiRoute } from "./routes/ai.js";
+import { runMigrations } from "./lib/migrate.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -30,6 +31,16 @@ app.route("/api/ai", aiRoute);
 export default app;
 
 const port = Number(process.env.PORT || 3001);
-console.log(`Backend running on http://localhost:${port}`);
 
-serve({ fetch: app.fetch, port });
+async function start() {
+  try {
+    await runMigrations();
+    console.log(`Backend running on http://localhost:${port}`);
+    serve({ fetch: app.fetch, port });
+  } catch (err) {
+    console.error("Failed to start backend:", err);
+    process.exit(1);
+  }
+}
+
+start();
