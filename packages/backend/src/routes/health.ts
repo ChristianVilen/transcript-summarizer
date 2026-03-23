@@ -18,6 +18,7 @@ healthRoute.get("/", async (c) => {
     status: dbOk ? "ok" : "error",
     timestamp: new Date().toISOString(),
     db: dbOk,
+    passwordRequired: process.env.NODE_ENV === "production",
   };
   return c.json(res);
 });

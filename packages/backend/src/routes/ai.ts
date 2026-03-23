@@ -12,6 +12,11 @@ export const aiRoute = new Hono();
 
 // Password protection middleware for AI endpoints
 aiRoute.use("/*", async (c, next) => {
+  if (process.env.NODE_ENV !== "production") {
+    await next();
+    return;
+  }
+
   const password = process.env.AI_PASSWORD;
   if (!password) {
     return c.json({ error: "AI service not configured" }, 503);

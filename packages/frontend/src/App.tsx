@@ -119,7 +119,11 @@ export default function App() {
             {selectedId !== null ? (
               <SummaryDetail id={selectedId} onBack={() => setSelectedId(null)} />
             ) : (
-              <Summarizer onSummarized={handleSummarized} />
+              <Summarizer
+                onSummarized={handleSummarized}
+                password={password}
+                passwordRequired={health?.passwordRequired ?? false}
+              />
             )}
           </div>
         </main>

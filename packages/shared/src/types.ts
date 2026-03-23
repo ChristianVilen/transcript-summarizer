@@ -34,4 +34,5 @@ export interface HealthResponse {
   status: "ok" | "error";
   timestamp: string;
   db: boolean;
+  passwordRequired: boolean;
 }

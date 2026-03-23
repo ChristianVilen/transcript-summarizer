@@ -11,9 +11,11 @@ const TONES: { value: Tone; label: string; description: string }[] = [
 
 interface Props {
   onSummarized: (id: number) => void;
+  password: string;
+  passwordRequired: boolean;
 }
 
-export const Summarizer = ({ onSummarized }: Props) => {
+export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) => {
   const [text, setText] = useState("");
   const [language, setLanguage] = useState("English");
   const [tone, setTone] = useState<Tone>("clinical");
@@ -128,7 +130,8 @@ export const Summarizer = ({ onSummarized }: Props) => {
 
         <button
           onClick={handleSubmit}
-          disabled={!text.trim() || loading}
+          disabled={!text.trim() || loading || (passwordRequired && !password)}
+          title={passwordRequired && !password ? "Enter your AI password to summarize" : undefined}
           className="ml-auto rounded-md bg-primary px-5 py-2 text-sm font-medium text-white transition-all hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {loading ? "Summarizing…" : "Summarize →"}
