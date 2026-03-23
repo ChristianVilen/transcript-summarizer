@@ -1,14 +1,8 @@
 import { useRef, useState } from "react";
 import type { SummarizeRequest, SummarizeResponse, Tone } from "@gosta-assignemnt/shared";
-import { LANGUAGES } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
 import { SummaryContent } from "./SummaryContent";
-
-const TONES: { value: Tone; label: string; description: string }[] = [
-  { value: "clinical", label: "Clinical", description: "Formal medical language, precise terminology." },
-  { value: "simple", label: "Simple", description: "Plain language, avoids medical jargon." },
-  { value: "detailed", label: "Detailed", description: "Comprehensive, thorough and preserves all key findings." },
-];
+import { LanguageSelect, ToneSelect, StyleSelect } from "./SummarySelects";
 
 interface Props {
   onSummarized: (id: number, meta: { language: string; tone: string; style: string }) => void;
@@ -109,36 +103,9 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
       />
 
       <div className="flex flex-wrap items-center gap-3">
-        <select
-          value={language}
-          onChange={(e) => setLanguage(e.target.value)}
-          className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-        >
-          {LANGUAGES.map((l) => (
-            <option key={l}>{l}</option>
-          ))}
-        </select>
-
-        <select
-          value={tone}
-          onChange={(e) => setTone(e.target.value as Tone)}
-          className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-        >
-          {TONES.map((t) => (
-            <option key={t.value} value={t.value}>
-              {t.label} - {t.description}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={style}
-          onChange={(e) => setStyle(e.target.value as "paragraph" | "bullets")}
-          className="rounded-md border border-border bg-surface-raised px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-        >
-          <option value="paragraph">Paragraph</option>
-          <option value="bullets">Bullets</option>
-        </select>
+        <LanguageSelect value={language} onChange={setLanguage} />
+        <ToneSelect value={tone} onChange={setTone} showDescription />
+        <StyleSelect value={style} onChange={setStyle} />
 
         <button
           onClick={handleSubmit}

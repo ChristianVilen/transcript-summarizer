@@ -1,15 +1,8 @@
 import { useEffect, useState } from "react";
 import type { SummarizeRequest, SummarizeResponse, SummaryDetail as SummaryDetailType, Tone } from "@gosta-assignemnt/shared";
-import { TONES } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
 import { SummaryContent } from "./SummaryContent";
-
-const TONE_LABELS: Record<Tone, string> = {
-  clinical: "Clinical",
-  simple: "Simple",
-  detailed: "Detailed",
-  neutral: "Neutral",
-};
+import { LanguageSelect, ToneSelect, StyleSelect } from "./SummarySelects";
 
 interface Props {
   id: number;
@@ -20,6 +13,7 @@ export const SummaryDetail = ({ id, onRegenerated }: Props) => {
   const [detail, setDetail] = useState<SummaryDetailType | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [regenerating, setRegenerating] = useState(false);
+  const [language, setLanguage] = useState("English");
   const [tone, setTone] = useState<Tone>("clinical");
   const [style, setStyle] = useState<"paragraph" | "bullets">("paragraph");
 
@@ -30,11 +24,11 @@ export const SummaryDetail = ({ id, onRegenerated }: Props) => {
     try {
       const res = await api.post<SummarizeResponse>("/api/ai/summarize", {
         text: detail.original_text,
-        language: detail.language,
+        language,
         tone,
         style,
       } as SummarizeRequest);
-      onRegenerated(res.id, { language: detail.language, tone, style });
+      onRegenerated(res.id, { language, tone, style });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Regeneration failed");
     } finally {
@@ -49,6 +43,7 @@ export const SummaryDetail = ({ id, onRegenerated }: Props) => {
       .get<SummaryDetailType>(`/api/ai/summaries/${id}`)
       .then((d) => {
         setDetail(d);
+        setLanguage(d.language);
         setTone(d.tone as Tone);
         setStyle(d.style as "paragraph" | "bullets");
       })
@@ -70,24 +65,9 @@ export const SummaryDetail = ({ id, onRegenerated }: Props) => {
       {detail && (
         <>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge label="Language" value={detail.language} />
-            <select
-              value={tone}
-              onChange={(e) => setTone(e.target.value as Tone)}
-              className="rounded-md border border-border bg-surface-raised px-2 py-1 text-xs text-text focus:border-primary focus:outline-none"
-            >
-              {TONES.map((t) => (
-                <option key={t} value={t}>{TONE_LABELS[t]}</option>
-              ))}
-            </select>
-            <select
-              value={style}
-              onChange={(e) => setStyle(e.target.value as "paragraph" | "bullets")}
-              className="rounded-md border border-border bg-surface-raised px-2 py-1 text-xs text-text focus:border-primary focus:outline-none"
-            >
-              <option value="paragraph">Paragraph</option>
-              <option value="bullets">Bullets</option>
-            </select>
+            <LanguageSelect value={language} onChange={setLanguage} size="sm" />
+            <ToneSelect value={tone} onChange={setTone} size="sm" />
+            <StyleSelect value={style} onChange={setStyle} size="sm" />
             <button
               onClick={handleRegenerate}
               disabled={regenerating}
@@ -119,9 +99,3 @@ export const SummaryDetail = ({ id, onRegenerated }: Props) => {
     </div>
   );
 };
-
-const Badge = ({ label, value }: { label: string; value: string }) => (
-  <span className="rounded-full border border-border bg-surface px-3 py-1 text-xs text-text-muted capitalize">
-    {label}: <span className="text-text">{value}</span>
-  </span>
-);
