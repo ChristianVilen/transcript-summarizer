@@ -1,3 +1,9 @@
+let aiPassword = "";
+
+export function setAiPassword(password: string): void {
+  aiPassword = password;
+}
+
 async function get<T>(url: string): Promise<T> {
   const res = await fetch(url);
   if (!res.ok) throw new Error(`GET ${url}: ${res.status}`);
@@ -5,9 +11,13 @@ async function get<T>(url: string): Promise<T> {
 }
 
 async function post<T>(url: string, body: unknown): Promise<T> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (url.includes("/api/ai/") && aiPassword) {
+    headers["X-AI-Password"] = aiPassword;
+  }
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`POST ${url}: ${res.status}`);
@@ -19,9 +29,13 @@ async function postStream(
   body: unknown,
   onChunk: (text: string) => void,
 ): Promise<void> {
+  const headers: HeadersInit = { "Content-Type": "application/json" };
+  if (url.includes("/api/ai/") && aiPassword) {
+    headers["X-AI-Password"] = aiPassword;
+  }
   const res = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers,
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(`POST ${url}: ${res.status}`);

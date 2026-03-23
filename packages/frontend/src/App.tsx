@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { HealthResponse, SummaryListItem } from "@gosta-assignemnt/shared";
-import { api } from "./lib/api";
+import { api, setAiPassword } from "./lib/api";
 import { Summarizer } from "./components/Summarizer";
 import { History } from "./components/History";
 import { SummaryDetail } from "./components/SummaryDetail";
@@ -10,12 +10,20 @@ export default function App() {
   const [history, setHistory] = useState<SummaryListItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [pendingId, setPendingId] = useState<number | null>(null);
+  const [password, setPassword] = useState<string>("");
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    api.get<HealthResponse>("/api/health").then(setHealth).catch(() => null);
+    api
+      .get<HealthResponse>("/api/health")
+      .then(setHealth)
+      .catch(() => null);
     fetchHistory();
   }, []);
+
+  useEffect(() => {
+    setAiPassword(password);
+  }, [password]);
 
   function fetchHistory() {
     api
@@ -61,11 +69,20 @@ export default function App() {
     <div className="min-h-screen bg-bg text-text flex flex-col">
       <header className="border-b border-border px-6 py-4 flex items-center justify-between shrink-0">
         <h1 className="text-xl font-semibold">Transcript Summarizer</h1>
-        {health && (
-          <span className={`text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}>
-            Backend health: {health.status}
-          </span>
-        )}
+        <div className="flex items-center gap-4">
+          <input
+            type="password"
+            placeholder="AI Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="px-3 py-1 text-sm rounded border border-border bg-bg-secondary text-text placeholder-text-muted"
+          />
+          {health && (
+            <span className={`text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}>
+              Backend health: {health.status}
+            </span>
+          )}
+        </div>
       </header>
 
       <div className="flex flex-1 overflow-hidden">
@@ -88,10 +105,7 @@ export default function App() {
         <main className="flex-1 overflow-y-auto px-8 py-8">
           <div className="max-w-2xl mx-auto">
             {selectedId !== null ? (
-              <SummaryDetail
-                id={selectedId}
-                onBack={() => setSelectedId(null)}
-              />
+              <SummaryDetail id={selectedId} onBack={() => setSelectedId(null)} />
             ) : (
               <Summarizer onSummarized={handleSummarized} />
             )}

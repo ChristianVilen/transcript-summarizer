@@ -10,6 +10,21 @@ import type {
 
 export const aiRoute = new Hono();
 
+// Password protection middleware for AI endpoints
+aiRoute.use("/*", async (c, next) => {
+  const password = process.env.AI_PASSWORD;
+  if (!password) {
+    return c.json({ error: "AI service not configured" }, 503);
+  }
+
+  const providedPassword = c.req.header("X-AI-Password");
+  if (providedPassword !== password) {
+    return c.json({ error: "Unauthorized" }, 401);
+  }
+
+  await next();
+});
+
 aiRoute.post("/summarize", async (c) => {
   const body = await c.req.json<SummarizeRequest>();
   const { text, language, style = "paragraph", tone = "neutral" } = body;
@@ -31,9 +46,7 @@ aiRoute.post("/summarize", async (c) => {
 
   // Generate title in the background — don't await
   generateTitle(summary, language)
-    .then((title) =>
-      db.updateTable("summaries").set({ title }).where("id", "=", row.id).execute()
-    )
+    .then((title) => db.updateTable("summaries").set({ title }).where("id", "=", row.id).execute())
     .catch(console.error);
 
   const result: SummarizeResponse = { id: row.id, summary };
@@ -52,11 +65,7 @@ aiRoute.get("/summaries", async (c) => {
 
 aiRoute.get("/summaries/:id", async (c) => {
   const id = Number(c.req.param("id"));
-  const row = await db
-    .selectFrom("summaries")
-    .selectAll()
-    .where("id", "=", id)
-    .executeTakeFirst();
+  const row = await db.selectFrom("summaries").selectAll().where("id", "=", id).executeTakeFirst();
 
   if (!row) return c.json({ error: "Not found" }, 404);
 
