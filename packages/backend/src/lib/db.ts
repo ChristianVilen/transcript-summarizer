@@ -1,5 +1,5 @@
 import Database from "better-sqlite3";
-import { Kysely, SqliteDialect } from "kysely";
+import { Kysely, SqliteDialect, Generated } from "kysely";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -12,13 +12,14 @@ const dialect = new SqliteDialect({
 
 export interface DB {
   summaries: {
-    id: number;
+    id: Generated<number>;
+    title: string | null;
     original_text: string;
     summary: string;
     language: string;
     style: string;
     tone: string;
-    created_at: string;
+    created_at: Generated<string>;
   };
 }
 
