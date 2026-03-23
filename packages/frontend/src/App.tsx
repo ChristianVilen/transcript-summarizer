@@ -10,7 +10,9 @@ export default function App() {
   const [history, setHistory] = useState<SummaryListItem[]>([]);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [pendingId, setPendingId] = useState<number | null>(null);
-  const [password, setPassword] = useState<string>("");
+  const [password, setPassword] = useState<string>(
+    () => sessionStorage.getItem("ai_password") ?? ""
+  );
   const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -23,6 +25,11 @@ export default function App() {
 
   useEffect(() => {
     setAiPassword(password);
+    if (password) {
+      sessionStorage.setItem("ai_password", password);
+    } else {
+      sessionStorage.removeItem("ai_password");
+    }
   }, [password]);
 
   function fetchHistory() {

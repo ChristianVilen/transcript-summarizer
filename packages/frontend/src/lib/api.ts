@@ -1,11 +1,15 @@
-let aiPassword = "";
+let aiPassword = sessionStorage.getItem("ai_password") ?? "";
 
 export function setAiPassword(password: string): void {
   aiPassword = password;
 }
 
 async function get<T>(url: string): Promise<T> {
-  const res = await fetch(url);
+  const headers: HeadersInit = {};
+  if (url.includes("/api/ai/") && aiPassword) {
+    headers["X-AI-Password"] = aiPassword;
+  }
+  const res = await fetch(url, { headers });
   if (!res.ok) throw new Error(`GET ${url}: ${res.status}`);
   return res.json();
 }
