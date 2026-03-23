@@ -22,31 +22,20 @@ export const AppHeader = ({ password, onPasswordChange, health, onMenuOpen }: Pr
         <h1 className="text-xl font-semibold">Transcript Summarizer</h1>
       </div>
 
-      <div className="hidden md:flex items-center gap-4">
+      <div className="flex items-center gap-4">
         <input
           type="password"
           placeholder="AI Password"
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
-          className="px-3 py-1 text-sm rounded border border-border bg-bg-secondary text-text placeholder-text-muted"
+          className="px-2 py-1 text-xs md:text-sm md:px-3 rounded border border-border bg-bg-secondary text-text placeholder-text-muted w-24 md:w-auto"
         />
         {health && (
-          <span className={`text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}>
+          <span className={`hidden md:inline text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}>
             Backend health: {health.status}
           </span>
         )}
       </div>
     </div>
-
-    <div className="md:hidden mt-2">
-      <input
-        type="password"
-        placeholder="AI Password"
-        value={password}
-        onChange={(e) => onPasswordChange(e.target.value)}
-        className="w-full px-3 py-1.5 text-sm rounded border border-border bg-bg-secondary text-text placeholder-text-muted"
-      />
-    </div>
   </header>
 );
-
