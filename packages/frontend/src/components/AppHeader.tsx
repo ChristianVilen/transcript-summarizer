@@ -28,7 +28,7 @@ export const AppHeader = ({ password, onPasswordChange, health, onMenuOpen }: Pr
           placeholder="AI Password"
           value={password}
           onChange={(e) => onPasswordChange(e.target.value)}
-          className="px-2 py-1 text-xs md:text-sm md:px-3 rounded border border-border bg-bg-secondary text-text placeholder-text-muted w-24 md:w-auto"
+          className="px-2 py-1 text-xs md:text-sm md:px-3 rounded-md border border-border bg-surface-raised text-text placeholder:text-text-muted/50 focus:border-primary focus:outline-none transition-colors w-24 md:w-auto"
         />
         {health && (
           <span className={`hidden md:inline text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}>

@@ -1,5 +1,6 @@
 import type { SummaryListItem } from "@gosta-assignemnt/shared";
 import { History } from "./History";
+import { ComposeIcon } from "./icons";
 
 interface Props {
   items: SummaryListItem[];
@@ -29,19 +30,27 @@ export const Sidebar = ({ items, selectedId, pendingId, isOpen, onClose, onNew, 
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
       `}
     >
-      <div className="px-4 py-3 border-b border-border">
+      <div className="px-3 py-3 border-b border-border">
         <button
           onClick={onNew}
-          className={`w-full rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          className={`w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
             selectedId === null
-              ? "bg-primary/20 text-text"
-              : "text-text-muted hover:bg-surface hover:text-text"
+              ? "bg-primary/10 text-primary border border-primary/25"
+              : "text-text-muted hover:bg-surface hover:text-text border border-transparent"
           }`}
         >
-          + New summary
+          <ComposeIcon size={13} />
+          New summary
         </button>
       </div>
-      <div className="flex-1 overflow-y-auto px-3 py-3">
+
+      <div className="px-3 pt-3 pb-1">
+        <p className="text-xs font-semibold uppercase tracking-widest text-text-muted opacity-40">
+          History
+        </p>
+      </div>
+
+      <div className="flex-1 overflow-y-auto px-3 py-1">
         <History
           items={items}
           selectedId={selectedId}

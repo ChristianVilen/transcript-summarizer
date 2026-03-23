@@ -123,7 +123,7 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
 
       <div className="flex flex-wrap items-center gap-3">
         <LanguageSelect value={language} onChange={setLanguage} />
-        <ToneSelect value={tone} onChange={setTone} showDescription />
+        <ToneSelect value={tone} onChange={setTone} />
         <StyleSelect value={style} onChange={setStyle} />
 
         <button
@@ -143,9 +143,15 @@ export const Summarizer = ({ onSummarized, password, passwordRequired }: Props) 
       )}
 
       {summary !== null && (
-        <div className="rounded-lg border border-border bg-surface p-5 text-text leading-relaxed">
-          <SummaryContent text={summary} />
-        </div>
+        <section className="space-y-2">
+          <h2 className="text-xs font-semibold uppercase tracking-widest text-text-muted opacity-60">
+            Summary
+          </h2>
+          <div className="rounded-lg border border-primary/30 bg-surface p-5 text-text leading-relaxed">
+            <SummaryContent text={summary} />
+            {loading && <span className="inline-block w-0.5 h-4 bg-primary/70 ml-0.5 animate-pulse align-middle" />}
+          </div>
+        </section>
       )}
     </div>
   );
