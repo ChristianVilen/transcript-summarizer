@@ -1,81 +1,14 @@
-import { useEffect, useRef, useState } from "react";
-import type { HealthResponse, SummaryListItem } from "@gosta-assignemnt/shared";
-import { api, setAiPassword } from "./lib/api";
 import { Summarizer } from "./components/Summarizer";
 import { History } from "./components/History";
 import { SummaryDetail } from "./components/SummaryDetail";
+import { useHealth } from "./hooks/useHealth";
+import { usePassword } from "./hooks/usePassword";
+import { useSummaryHistory } from "./hooks/useSummaryHistory";
 
 export default function App() {
-  const [health, setHealth] = useState<HealthResponse | null>(null);
-  const [history, setHistory] = useState<SummaryListItem[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [pendingId, setPendingId] = useState<number | null>(null);
-  const [password, setPassword] = useState<string>(
-    () => sessionStorage.getItem("ai_password") ?? ""
-  );
-  const pollRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    api
-      .get<HealthResponse>("/api/health")
-      .then(setHealth)
-      .catch(() => null);
-    fetchHistory(true);
-  }, []);
-
-  useEffect(() => {
-    setAiPassword(password);
-    if (password) {
-      sessionStorage.setItem("ai_password", password);
-    } else {
-      sessionStorage.removeItem("ai_password");
-    }
-  }, [password]);
-
-  function fetchHistory(autoSelect = false) {
-    api
-      .get<SummaryListItem[]>("/api/ai/summaries")
-      .then((items) => {
-        setHistory(items);
-        if (autoSelect && items.length > 0) {
-          setSelectedId(items[0].id);
-        }
-      })
-      .catch(() => null);
-  }
-
-  function handleSummarized(id: number) {
-    fetchHistory();
-    setPendingId(id);
-    pollForTitle(id);
-  }
-
-  function pollForTitle(id: number, attempts = 0) {
-    if (attempts >= 15) {
-      setPendingId(null);
-      return;
-    }
-    pollRef.current = setTimeout(() => {
-      api
-        .get<SummaryListItem[]>("/api/ai/summaries")
-        .then((items) => {
-          setHistory(items);
-          const item = items.find((i) => i.id === id);
-          if (item?.title) {
-            setPendingId(null);
-          } else {
-            pollForTitle(id, attempts + 1);
-          }
-        })
-        .catch(() => pollForTitle(id, attempts + 1));
-    }, 2000);
-  }
-
-  useEffect(() => {
-    return () => {
-      if (pollRef.current) clearTimeout(pollRef.current);
-    };
-  }, []);
+  const health = useHealth();
+  const { password, setPassword } = usePassword();
+  const { history, selectedId, setSelectedId, pendingId, handleSummarized } = useSummaryHistory();
 
   return (
     <div className="min-h-screen bg-bg text-text flex flex-col">
