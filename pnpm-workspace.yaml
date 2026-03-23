@@ -1,2 +1,5 @@
 packages:
   - "packages/*"
+
+settings:
+  minimumReleaseAge: 10080
