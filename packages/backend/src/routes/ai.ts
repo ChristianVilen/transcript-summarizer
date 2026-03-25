@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { streamSSE } from "hono/streaming";
-import { summarizeStream, generateTitle, AIError } from "../lib/ai.js";
+import { summarizeStream, generateTitle } from "../lib/ai.js";
+import { AIError } from "../lib/error.js";
 import { db } from "../lib/db.js";
 import { logger } from "../lib/logger.js";
 import { titleEvents } from "../lib/titleEvents.js";

@@ -13,7 +13,7 @@ vi.mock("../config.js", () => ({
 }));
 
 import { provider } from "../providers/index.js";
-import { summarize, summarizeStream, generateTitle, AIError } from "../ai.js";
+import { summarize, summarizeStream, generateTitle } from "../ai.js";
 
 const mockComplete = vi.mocked(provider.complete);
 const mockStream = vi.mocked(provider.stream);

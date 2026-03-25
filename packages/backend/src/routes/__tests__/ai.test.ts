@@ -48,7 +48,8 @@ vi.mock("../../lib/titleEvents.js", () => ({
 }));
 
 import { aiRoute } from "../ai.js";
-import { summarizeStream, generateTitle, AIError } from "../../lib/ai.js";
+import { summarizeStream, generateTitle } from "../../lib/ai.js";
+import { AIError } from "../../lib/error.js";
 
 // Build a minimal app from the route module directly
 const app = new Hono();
