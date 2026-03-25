@@ -16,7 +16,7 @@ export const config = {
 
   ai: {
     provider,
-    anthropicModel: "claude-opus-4-6",
+    anthropicModel: "claude-sonnet-4-6",
     lmStudioModel: "qwen3-8b",
     anthropicApiKey: provider === "anthropic" ? requireEnv("ANTHROPIC_API_KEY") : null,
     lmStudioUrl: provider === "lm-studio" ? requireEnv("LM_STUDIO_URL") : null,

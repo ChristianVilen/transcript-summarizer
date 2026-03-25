@@ -17,18 +17,26 @@ export class AIError extends Error {
 }
 
 // Maps SDK-specific errors to AIError. Re-throws anything that isn't an AI SDK error.
-function classifyError(err: unknown): AIError {
+function classifyError(err: unknown): {
+  classified: AIError;
+  cause?: { status?: number; message?: string };
+} {
   if (err instanceof Anthropic.RateLimitError || err instanceof OpenAI.RateLimitError) {
-    return new AIError("AI rate limit exceeded, please try again later", "rate_limit", 429);
+    return {
+      classified: new AIError("AI rate limit exceeded, please try again later", "rate_limit", 429),
+    };
   }
   if (err instanceof Anthropic.AuthenticationError || err instanceof OpenAI.AuthenticationError) {
-    return new AIError("AI service is not properly configured", "auth", 503);
+    return { classified: new AIError("AI service is not properly configured", "auth", 503) };
   }
   if (err instanceof Anthropic.APIConnectionError || err instanceof OpenAI.APIConnectionError) {
-    return new AIError("AI service is currently unavailable", "unavailable", 503);
+    return { classified: new AIError("AI service is currently unavailable", "unavailable", 503) };
   }
   if (err instanceof Anthropic.APIError || err instanceof OpenAI.APIError) {
-    return new AIError("AI service returned an unexpected error", "unknown", 502);
+    return {
+      classified: new AIError("AI service returned an unexpected error", "unknown", 502),
+      cause: { status: err.status, message: err.message },
+    };
   }
   throw err;
 }
@@ -66,10 +74,11 @@ export async function summarize({
       logger.warn("ai.summarize failed", { code: err.code, duration: Date.now() - start });
       throw err;
     }
-    const classified = classifyError(err);
+    const { classified, cause } = classifyError(err);
     logger.warn("ai.summarize failed", {
       code: classified.code,
       error: classified.message,
+      ...(cause && { causeStatus: cause.status, causeMessage: cause.message }),
       duration: Date.now() - start,
     });
     throw classified;
@@ -106,10 +115,11 @@ export async function summarizeStream(
       logger.warn("ai.summarizeStream failed", { code: err.code, duration: Date.now() - start });
       throw err;
     }
-    const classified = classifyError(err);
+    const { classified, cause } = classifyError(err);
     logger.warn("ai.summarizeStream failed", {
       code: classified.code,
       error: classified.message,
+      ...(cause && { causeStatus: cause.status, causeMessage: cause.message }),
       duration: Date.now() - start,
     });
     throw classified;
@@ -135,10 +145,11 @@ export async function generateTitle(summary: string, language: string): Promise<
       logger.warn("ai.generateTitle failed", { code: err.code, duration: Date.now() - start });
       throw err;
     }
-    const classified = classifyError(err);
+    const { classified, cause } = classifyError(err);
     logger.warn("ai.generateTitle failed", {
       code: classified.code,
       error: classified.message,
+      ...(cause && { causeStatus: cause.status, causeMessage: cause.message }),
       duration: Date.now() - start,
     });
     throw classified;
