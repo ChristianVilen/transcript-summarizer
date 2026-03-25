@@ -1,10 +1,8 @@
-import type { HealthResponse } from "@gosta-assignemnt/shared";
 import { MenuIcon, MoonIcon, SunIcon } from "./icons";
 
 interface Props {
   password: string;
   onPasswordChange: (value: string) => void;
-  health: HealthResponse | null;
   onMenuOpen: () => void;
   theme: "light" | "dark";
   onThemeToggle: () => void;
@@ -13,7 +11,6 @@ interface Props {
 export const Header = ({
   password,
   onPasswordChange,
-  health,
   onMenuOpen,
   theme,
   onThemeToggle,
@@ -41,13 +38,6 @@ export const Header = ({
           onChange={(e) => onPasswordChange(e.target.value)}
           className="px-2 py-1 text-xs md:text-sm md:px-3 rounded-md border border-border bg-surface-raised text-text placeholder:text-text-muted/50 focus:border-primary focus:outline-none transition-colors w-24 md:w-auto"
         />
-        {health && (
-          <span
-            className={`hidden md:inline text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}
-          >
-            Backend health: {health.status}
-          </span>
-        )}
         <button
           onClick={onThemeToggle}
           aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}

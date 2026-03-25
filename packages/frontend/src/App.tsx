@@ -2,14 +2,12 @@ import { useState } from "react";
 import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { SummaryWorkspace } from "./components/SummaryWorkspace";
-import { useHealth } from "./hooks/useHealth";
 import { usePassword } from "./hooks/usePassword";
 import { SummaryMeta, useSummaryHistory } from "./hooks/useSummaryHistory";
 import { useTheme } from "./hooks/useTheme";
 
 export default function App() {
   const { theme, toggle: toggleTheme } = useTheme();
-  const health = useHealth();
   const { password, setPassword } = usePassword();
   const { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete } =
     useSummaryHistory();
@@ -39,7 +37,6 @@ export default function App() {
       <Header
         password={password}
         onPasswordChange={setPassword}
-        health={health}
         onMenuOpen={onMenuOpen}
         theme={theme}
         onThemeToggle={toggleTheme}
@@ -62,7 +59,7 @@ export default function App() {
             <SummaryWorkspace
               selectedId={selectedId}
               password={password}
-              passwordRequired={health?.passwordRequired ?? false}
+              passwordRequired={true}
               onSummarized={onSummarized}
             />
           </div>
