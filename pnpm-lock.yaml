@@ -40,8 +40,8 @@ importers:
         specifier: 4.12.8
         version: 4.12.8
       kysely:
-        specifier: 0.27.6
-        version: 0.27.6
+        specifier: 0.28.14
+        version: 0.28.14
       openai:
         specifier: 4.104.0
         version: 4.104.0(ws@8.19.0)(zod@3.25.76)
@@ -1378,10 +1378,6 @@ packages:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
     hasBin: true
-
-  kysely@0.27.6:
-    resolution: {integrity: sha512-FIyV/64EkKhJmjgC0g2hygpBv5RNWVPyNCqSAD7eTCv6eFWNIi4PN1UvdSJGicN/o35bnevgis4Y0UDC0qi8jQ==}
-    engines: {node: '>=14.0.0'}
 
   kysely@0.28.14:
     resolution: {integrity: sha512-SU3lgh0rPvq7upc6vvdVrCsSMUG1h3ChvHVOY7wJ2fw4C9QEB7X3d5eyYEyULUX7UQtxZJtZXGuT6U2US72UYA==}
@@ -3164,8 +3160,6 @@ snapshots:
   jsesc@3.1.0: {}
 
   json5@2.2.3: {}
-
-  kysely@0.27.6: {}
 
   kysely@0.28.14: {}
 
