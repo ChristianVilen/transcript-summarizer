@@ -1,4 +1,6 @@
-let aiPassword = sessionStorage.getItem("ai_password") ?? "";
+import { APP_PREFIX } from "./constants";
+
+let aiPassword = sessionStorage.getItem(`${APP_PREFIX}:ai_password`) ?? "";
 
 export function setAiPassword(password: string): void {
   aiPassword = password;

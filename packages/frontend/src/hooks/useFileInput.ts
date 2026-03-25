@@ -1,7 +1,18 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { APP_PREFIX } from "../lib/constants";
+
+const DRAFT_KEY = `${APP_PREFIX}:new_summary_draft`;
 
 export function useFileInput(onError: (msg: string) => void) {
-  const [inputText, setInputText] = useState("");
+  const [inputText, setInputText] = useState(() => sessionStorage.getItem(DRAFT_KEY) ?? "");
+
+  useEffect(() => {
+    if (inputText) {
+      sessionStorage.setItem(DRAFT_KEY, inputText);
+    } else {
+      sessionStorage.removeItem(DRAFT_KEY);
+    }
+  }, [inputText]);
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

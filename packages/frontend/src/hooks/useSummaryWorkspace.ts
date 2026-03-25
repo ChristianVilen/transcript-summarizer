@@ -40,7 +40,6 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
     if (selectedId === null) {
       viewIdRef.current = null;
       setMode("new");
-      fileInput.setInputText("");
       setSummaryText(null);
       setOriginalText(null);
       setError(null);
@@ -108,6 +107,7 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
         viewIdRef.current = doneId;
         setMode("view");
         setOriginalText(fileInput.inputText);
+        fileInput.setInputText("");
         onSummarized(doneId, { language, tone, style });
       }
     } catch (e) {

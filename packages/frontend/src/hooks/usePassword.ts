@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { setAiPassword } from "../lib/api";
+import { APP_PREFIX } from "../lib/constants";
 
 export function usePassword() {
   const [password, setPassword] = useState<string>(
-    () => sessionStorage.getItem("ai_password") ?? ""
+    () => sessionStorage.getItem(`${APP_PREFIX}:ai_password`) ?? ""
   );
 
   useEffect(() => {
     setAiPassword(password);
     if (password) {
-      sessionStorage.setItem("ai_password", password);
+      sessionStorage.setItem(`${APP_PREFIX}:ai_password`, password);
     } else {
-      sessionStorage.removeItem("ai_password");
+      sessionStorage.removeItem(`${APP_PREFIX}:ai_password`);
     }
   }, [password]);
 
