@@ -1,6 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { SummaryListItem } from "@gosta-assignemnt/shared";
-import { DeleteConfirmModal } from "./DeleteConfirmModal";
 import { TrashIcon } from "./icons";
 
 interface Props {
@@ -13,18 +12,27 @@ interface Props {
 
 export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Props) => {
   const [confirmId, setConfirmId] = useState<number | null>(null);
-  const [deleting, setDeleting] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
 
-  const confirmItem = items.find((i) => i.id === confirmId);
-
-  async function handleConfirm() {
+  useEffect(() => {
     if (confirmId === null) return;
-    setDeleting(true);
+    const handle = (e: MouseEvent) => {
+      if (confirmRef.current && !confirmRef.current.contains(e.target as Node)) {
+        setConfirmId(null);
+      }
+    };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
+  }, [confirmId]);
+
+  async function handleDelete(id: number) {
+    setDeletingId(id);
     try {
-      await onDelete(confirmId);
+      await onDelete(id);
       setConfirmId(null);
     } finally {
-      setDeleting(false);
+      setDeletingId(null);
     }
   }
 
@@ -37,34 +45,51 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
   }
 
   return (
-    <>
-      <ul className="space-y-1">
-        {items.map((item) => {
-          const isSelected = item.id === selectedId;
-          const isPending = item.id === pendingId && item.title === null;
+    <ul className="space-y-1">
+      {items.map((item) => {
+        const isSelected = item.id === selectedId;
+        const isPending = item.id === pendingId && item.title === null;
+        const isConfirming = item.id === confirmId;
+        const isDeleting = item.id === deletingId;
 
-          return (
-            <li key={item.id} className="group relative">
+        return (
+          <li key={item.id} className="group relative">
+            <button
+              onClick={() => onSelect(item.id)}
+              className={`w-full text-left rounded-md px-3 py-2.5 transition-all ${
+                isConfirming ? "pr-16" : "pr-9"
+              } ${
+                isSelected
+                  ? "bg-primary/20 text-text"
+                  : "hover:bg-surface-raised text-text-muted hover:text-text"
+              }`}
+            >
+              <p className="text-sm font-medium truncate">
+                {isPending ? (
+                  <span className="italic opacity-50">Generating title...</span>
+                ) : (
+                  (item.title ?? "Untitled")
+                )}
+              </p>
+              <p className="text-xs opacity-40 mt-0.5">
+                {item.language} · {new Date(item.created_at).toLocaleDateString()}
+              </p>
+            </button>
+
+            {isConfirming ? (
               <button
-                onClick={() => onSelect(item.id)}
-                className={`w-full text-left rounded-md px-3 py-2.5 pr-9 transition-colors ${
-                  isSelected
-                    ? "bg-primary/20 text-text"
-                    : "hover:bg-surface-raised text-text-muted hover:text-text"
-                }`}
+                ref={confirmRef}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleDelete(item.id);
+                }}
+                disabled={isDeleting}
+                aria-label="Confirm delete"
+                className="absolute right-1 top-1/2 -translate-y-1/2 px-2 py-1 rounded text-xs font-medium text-error bg-error/15 border border-error/30 hover:bg-error/25 transition-colors disabled:opacity-40"
               >
-                <p className="text-sm font-medium truncate">
-                  {isPending ? (
-                    <span className="italic opacity-50">Generating title…</span>
-                  ) : (
-                    (item.title ?? "Untitled")
-                  )}
-                </p>
-                <p className="text-xs opacity-40 mt-0.5">
-                  {item.language} · {new Date(item.created_at).toLocaleDateString()}
-                </p>
+                {isDeleting ? "..." : "Sure?"}
               </button>
-
+            ) : (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -75,19 +100,10 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
               >
                 <TrashIcon />
               </button>
-            </li>
-          );
-        })}
-      </ul>
-
-      {confirmId !== null && (
-        <DeleteConfirmModal
-          title={confirmItem?.title ?? null}
-          deleting={deleting}
-          onConfirm={handleConfirm}
-          onCancel={() => setConfirmId(null)}
-        />
-      )}
-    </>
+            )}
+          </li>
+        );
+      })}
+    </ul>
   );
 };
