@@ -120,3 +120,8 @@ This repo includes a couple of Claude Code skills in `.claude/skills/` to make c
 - supporting more filetypes like pdf and doc
 - dictation mode
 - summaries per customer -> enables us to get a patient history analysis
+- add retry logic for failed requests
+- rate limiting on the API endpoints
+- caching
+- infra as code
+- playwright tests (now used playwright-cli with Claude)
