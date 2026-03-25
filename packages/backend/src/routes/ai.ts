@@ -128,30 +128,45 @@ aiRoute.get("/summaries/:id/title-stream", async (c) => {
   if (!row) return c.json({ error: "Not found" }, 404);
 
   return streamSSE(c, async (stream) => {
-    if (row.title) {
-      await stream.writeSSE({ data: JSON.stringify({ title: row.title }) });
-      return;
-    }
-
-    await new Promise<void>((resolve) => {
+    // Register listener before checking DB to avoid race condition where
+    // title is generated between the check and the listener registration.
+    const titlePromise = new Promise<string | null>((resolve) => {
       const timeout = setTimeout(() => {
-        resolve();
+        titleEvents.removeListener(`title:${id}`, handler);
+        resolve(null);
       }, 35000);
 
-      const handler = async (title: string) => {
+      function handler(title: string) {
         clearTimeout(timeout);
-        await stream.writeSSE({ data: JSON.stringify({ title }) });
-        resolve();
-      };
+        resolve(title);
+      }
 
       titleEvents.once(`title:${id}`, handler);
 
       stream.onAbort(() => {
         clearTimeout(timeout);
         titleEvents.removeListener(`title:${id}`, handler);
-        resolve();
+        resolve(null);
       });
     });
+
+    // Check DB after listener is registered
+    const fresh = await db
+      .selectFrom("summaries")
+      .select("title")
+      .where("id", "=", id)
+      .executeTakeFirst();
+
+    if (fresh?.title) {
+      titleEvents.removeAllListeners(`title:${id}`);
+      await stream.writeSSE({ data: JSON.stringify({ title: fresh.title }) });
+      return;
+    }
+
+    const title = await titlePromise;
+    if (title) {
+      await stream.writeSSE({ data: JSON.stringify({ title }) });
+    }
   });
 });
 
