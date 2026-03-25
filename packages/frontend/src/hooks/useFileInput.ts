@@ -16,7 +16,13 @@ export function useFileInput(onError: (msg: string) => void) {
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+
   function readFile(file: File) {
+    if (file.size > MAX_FILE_SIZE) {
+      onError(`File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 5 MB.`);
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => setInputText(reader.result as string);
     reader.onerror = () => onError("Failed to read file");
