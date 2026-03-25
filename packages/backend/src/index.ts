@@ -6,6 +6,7 @@ import { healthRoute } from "./routes/health.js";
 import { aiRoute } from "./routes/ai.js";
 import { runMigrations } from "./lib/migrate.js";
 import { logger } from "./lib/logger.js";
+import { config } from "./lib/config.js";
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -55,7 +56,7 @@ app.route("/api/ai", aiRoute);
 
 export default app;
 
-const port = Number(process.env.PORT || 3001);
+const { port } = config;
 
 async function start() {
   try {

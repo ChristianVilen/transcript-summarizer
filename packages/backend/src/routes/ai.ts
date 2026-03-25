@@ -5,23 +5,19 @@ import { db } from "../lib/db.js";
 import { logger } from "../lib/logger.js";
 import { titleEvents } from "../lib/titleEvents.js";
 import { summarizeRequestSchema, idParamSchema } from "../lib/schemas.js";
+import { config } from "../lib/config.js";
 import type { SummaryListItem, SummaryDetail } from "@gosta-assignemnt/shared";
 
 export const aiRoute = new Hono();
 
 aiRoute.use("/*", async (c, next) => {
-  if (process.env.NODE_ENV !== "production") {
+  if (!config.ai.password) {
     await next();
     return;
   }
 
-  const password = process.env.AI_PASSWORD;
-  if (!password) {
-    return c.json({ error: "AI service not configured" }, 503);
-  }
-
   const providedPassword = c.req.header("X-AI-Password");
-  if (providedPassword !== password) {
+  if (providedPassword !== config.ai.password) {
     return c.json({ error: "Unauthorized" }, 401);
   }
 
