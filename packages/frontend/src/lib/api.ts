@@ -1,3 +1,4 @@
+import type { ZodType } from "zod";
 import { APP_PREFIX } from "./constants";
 
 let aiPassword = sessionStorage.getItem(`${APP_PREFIX}:ai_password`) ?? "";
@@ -12,6 +13,7 @@ function aiHeaders(extra: HeadersInit = {}): HeadersInit {
 
 async function parseSSE<T>(
   reader: ReadableStreamDefaultReader<Uint8Array>,
+  schema: ZodType<T>,
   onMessage: (msg: T) => void,
 ): Promise<void> {
   const decoder = new TextDecoder();
@@ -25,7 +27,20 @@ async function parseSSE<T>(
     for (const line of lines) {
       if (line.startsWith("data: ")) {
         const data = line.slice(6).trim();
-        if (data) onMessage(JSON.parse(data) as T);
+        if (!data) continue;
+        let json: unknown;
+        try {
+          json = JSON.parse(data);
+        } catch {
+          console.warn("Failed to parse SSE data:", data);
+          continue;
+        }
+        const result = schema.safeParse(json);
+        if (result.success) {
+          onMessage(result.data);
+        } else {
+          console.warn("Invalid SSE message:", result.error.flatten());
+        }
       }
     }
   }
@@ -50,6 +65,7 @@ async function post<T>(url: string, body: unknown): Promise<T> {
 async function postStream<T>(
   url: string,
   body: unknown,
+  schema: ZodType<T>,
   onMessage: (msg: T) => void,
 ): Promise<void> {
   const res = await fetch(url, {
@@ -60,17 +76,21 @@ async function postStream<T>(
   if (!res.ok) throw new Error(`POST ${url}: ${res.status}`);
   const reader = res.body?.getReader();
   if (!reader) return;
-  await parseSSE(reader, onMessage);
+  await parseSSE(reader, schema, onMessage);
 }
 
-function getStream<T>(url: string, onMessage: (msg: T) => void): AbortController {
+function getStream<T>(
+  url: string,
+  schema: ZodType<T>,
+  onMessage: (msg: T) => void,
+): AbortController {
   const controller = new AbortController();
   fetch(url, { headers: aiHeaders(), signal: controller.signal })
     .then(async (res) => {
       if (!res.ok) return;
       const reader = res.body?.getReader();
       if (!reader) return;
-      await parseSSE(reader, onMessage);
+      await parseSSE(reader, schema, onMessage);
     })
     .catch((err) => {
       if (err.name !== "AbortError") console.error("SSE error:", err);

@@ -4,13 +4,15 @@ import type {
   SummaryDetail as SummaryDetailType,
   Tone,
 } from "@gosta-assignemnt/shared";
+import { z } from "zod";
 import { api } from "../lib/api";
 import { useFileInput } from "./useFileInput";
 
-type SummarizeEvent =
-  | { type: "chunk"; text: string }
-  | { type: "done"; id: number }
-  | { type: "error"; message: string };
+const summarizeEventSchema = z.discriminatedUnion("type", [
+  z.object({ type: z.literal("chunk"), text: z.string() }),
+  z.object({ type: z.literal("done"), id: z.number() }),
+  z.object({ type: z.literal("error"), message: z.string() }),
+]);
 
 interface Options {
   selectedId: number | null;
@@ -74,9 +76,10 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
     let doneId: number | null = null;
     let streamError: string | null = null;
 
-    await api.postStream<SummarizeEvent>(
+    await api.postStream(
       "/api/ai/summarize",
       { text, language, tone, style } satisfies SummarizeRequest,
+      summarizeEventSchema,
       (msg) => {
         if (msg.type === "chunk") {
           streamedText += msg.text;

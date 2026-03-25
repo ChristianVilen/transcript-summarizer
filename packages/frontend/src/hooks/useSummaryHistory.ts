@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import type { SummaryListItem } from "@gosta-assignemnt/shared";
+import { z } from "zod";
 import { api } from "../lib/api";
+
+const titleEventSchema = z.object({ title: z.string() });
 
 export interface SummaryMeta {
   language: string;
@@ -53,8 +56,9 @@ export function useSummaryHistory() {
 
   function subscribeToTitle(id: number) {
     abortRef.current?.abort();
-    abortRef.current = api.getStream<{ title: string }>(
+    abortRef.current = api.getStream(
       `/api/ai/summaries/${id}/title-stream`,
+      titleEventSchema,
       (msg) => {
         setHistory((prev) =>
           prev.map((item) => (item.id === id ? { ...item, title: msg.title } : item)),
