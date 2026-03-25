@@ -61,14 +61,18 @@ aiRoute.post("/summarize", async (c) => {
 
     generateTitle(fullText, language)
       .then((title) =>
-        db.updateTable("summaries").set({ title }).where("id", "=", row.id).execute()
-          .then(() => titleEvents.emit(`title:${row.id}`, title))
+        db
+          .updateTable("summaries")
+          .set({ title })
+          .where("id", "=", row.id)
+          .execute()
+          .then(() => titleEvents.emit(`title:${row.id}`, title)),
       )
       .catch((err) =>
         logger.error("title generation failed", {
           summaryId: row.id,
           error: err instanceof Error ? err.message : String(err),
-        })
+        }),
       );
 
     await stream.writeSSE({ data: JSON.stringify({ type: "done", id: row.id }) });
@@ -97,7 +101,14 @@ aiRoute.get("/summaries/:id", async (c) => {
 
   const { id: rowId, title, language, tone, style, created_at, original_text, summary } = row;
   return c.json({
-    id: rowId, title, language, tone, style, created_at, original_text, summary,
+    id: rowId,
+    title,
+    language,
+    tone,
+    style,
+    created_at,
+    original_text,
+    summary,
   } satisfies SummaryDetail);
 });
 
@@ -108,7 +119,11 @@ aiRoute.get("/summaries/:id/title-stream", async (c) => {
   }
   const { id } = parsed.data;
 
-  const row = await db.selectFrom("summaries").select("title").where("id", "=", id).executeTakeFirst();
+  const row = await db
+    .selectFrom("summaries")
+    .select("title")
+    .where("id", "=", id)
+    .executeTakeFirst();
   if (!row) return c.json({ error: "Not found" }, 404);
 
   return streamSSE(c, async (stream) => {

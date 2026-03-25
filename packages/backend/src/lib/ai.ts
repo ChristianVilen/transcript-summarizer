@@ -56,7 +56,10 @@ export async function summarize({
       throw new AIError("AI returned an empty response", "unknown", 502);
     }
 
-    logger.info("ai.summarize completed", { provider: config.ai.provider, duration: Date.now() - start });
+    logger.info("ai.summarize completed", {
+      provider: config.ai.provider,
+      duration: Date.now() - start,
+    });
     return result;
   } catch (err) {
     if (err instanceof AIError) {
@@ -93,7 +96,10 @@ export async function summarizeStream(
       throw new AIError("AI returned an empty response", "unknown", 502);
     }
 
-    logger.info("ai.summarizeStream completed", { provider: config.ai.provider, duration: Date.now() - start });
+    logger.info("ai.summarizeStream completed", {
+      provider: config.ai.provider,
+      duration: Date.now() - start,
+    });
     return result;
   } catch (err) {
     if (err instanceof AIError) {
@@ -119,7 +125,10 @@ export async function generateTitle(summary: string, language: string): Promise<
     const result = await provider.complete(system, `<summary>\n${summary}\n</summary>`, 64);
 
     const title = result.trim() || "Untitled";
-    logger.info("ai.generateTitle completed", { provider: config.ai.provider, duration: Date.now() - start });
+    logger.info("ai.generateTitle completed", {
+      provider: config.ai.provider,
+      duration: Date.now() - start,
+    });
     return title;
   } catch (err) {
     if (err instanceof AIError) {
