@@ -4,7 +4,7 @@ import { APP_PREFIX } from "../lib/constants";
 
 export function usePassword() {
   const [password, setPassword] = useState<string>(
-    () => sessionStorage.getItem(`${APP_PREFIX}:ai_password`) ?? ""
+    () => sessionStorage.getItem(`${APP_PREFIX}:ai_password`) ?? "",
   );
 
   useEffect(() => {

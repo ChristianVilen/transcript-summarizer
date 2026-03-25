@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import type { SummaryListItem } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
 
+export interface SummaryMeta {
+  language: string;
+  tone: string;
+  style: string;
+}
+
 function getUrlId(): number | null {
   const raw = new URLSearchParams(window.location.search).get("id");
   const n = raw !== null ? Number(raw) : NaN;
@@ -51,14 +57,14 @@ export function useSummaryHistory() {
       `/api/ai/summaries/${id}/title-stream`,
       (msg) => {
         setHistory((prev) =>
-          prev.map((item) => (item.id === id ? { ...item, title: msg.title } : item))
+          prev.map((item) => (item.id === id ? { ...item, title: msg.title } : item)),
         );
         setPendingId(null);
       },
     );
   }
 
-  function handleSummarized(id: number, meta: { language: string; tone: string; style: string }) {
+  function handleSummarized(id: number, meta: SummaryMeta) {
     setHistory((prev) => [
       { id, title: null, created_at: new Date().toISOString(), ...meta },
       ...prev,
@@ -77,5 +83,12 @@ export function useSummaryHistory() {
     }
   }
 
-  return { history, selectedId, setSelectedId: selectId, pendingId, handleSummarized, handleDelete };
+  return {
+    history,
+    selectedId,
+    setSelectedId: selectId,
+    pendingId,
+    handleSummarized,
+    handleDelete,
+  };
 }

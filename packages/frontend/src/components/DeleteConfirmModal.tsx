@@ -6,10 +6,7 @@ interface Props {
 }
 
 export const DeleteConfirmModal = ({ title, deleting, onConfirm, onCancel }: Props) => (
-  <div
-    className="fixed inset-0 z-50 flex items-center justify-center"
-    onClick={onCancel}
-  >
+  <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onCancel}>
     <div className="absolute inset-0 bg-bg/80 backdrop-blur-sm" />
 
     <div
@@ -17,7 +14,7 @@ export const DeleteConfirmModal = ({ title, deleting, onConfirm, onCancel }: Pro
       onClick={(e) => e.stopPropagation()}
       style={{ animation: "modal-in 160ms cubic-bezier(0.16,1,0.3,1) both" }}
     >
-      <div className="h-0.5 w-full bg-gradient-to-r from-error/60 via-error to-error/60" />
+      <div className="h-0.5 w-full bg-linear-to-r from-error/60 via-error to-error/60" />
 
       <div className="px-6 pt-5 pb-6 space-y-5">
         <div className="space-y-1.5">
@@ -25,8 +22,7 @@ export const DeleteConfirmModal = ({ title, deleting, onConfirm, onCancel }: Pro
           <p className="text-sm text-text-muted leading-relaxed">
             {title ? (
               <>
-                <span className="text-text">{title}</span>
-                {" "}will be permanently removed.
+                <span className="text-text">{title}</span> will be permanently removed.
               </>
             ) : (
               "This summary will be permanently removed."

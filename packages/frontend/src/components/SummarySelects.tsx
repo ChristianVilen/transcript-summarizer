@@ -2,9 +2,17 @@ import { LANGUAGES } from "@gosta-assignemnt/shared";
 import type { Tone } from "@gosta-assignemnt/shared";
 
 const TONE_OPTIONS: { value: Tone; label: string; description: string }[] = [
-  { value: "clinical", label: "Clinical", description: "Formal medical language, precise terminology." },
+  {
+    value: "clinical",
+    label: "Clinical",
+    description: "Formal medical language, precise terminology.",
+  },
   { value: "simple", label: "Simple", description: "Plain language, avoids medical jargon." },
-  { value: "detailed", label: "Detailed", description: "Comprehensive, thorough and preserves all key findings." },
+  {
+    value: "detailed",
+    label: "Detailed",
+    description: "Comprehensive, thorough and preserves all key findings.",
+  },
   { value: "neutral", label: "Neutral", description: "Balanced, objective language." },
 ];
 
@@ -36,8 +44,17 @@ interface ToneProps {
   showDescription?: boolean;
 }
 
-export const ToneSelect = ({ value, onChange, size = "md", showDescription = false }: ToneProps) => (
-  <select value={value} onChange={(e) => onChange(e.target.value as Tone)} className={selectClass(size)}>
+export const ToneSelect = ({
+  value,
+  onChange,
+  size = "md",
+  showDescription = false,
+}: ToneProps) => (
+  <select
+    value={value}
+    onChange={(e) => onChange(e.target.value as Tone)}
+    className={selectClass(size)}
+  >
     {TONE_OPTIONS.map((t) => (
       <option key={t.value} value={t.value}>
         {showDescription ? `${t.label} - ${t.description}` : t.label}

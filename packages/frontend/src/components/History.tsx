@@ -30,7 +30,9 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
 
   if (items.length === 0) {
     return (
-      <p className="text-xs text-text-muted/50 mt-2">No summaries yet. Create one to get started.</p>
+      <p className="text-xs text-text-muted/50 mt-2">
+        No summaries yet. Create one to get started.
+      </p>
     );
   }
 
@@ -64,7 +66,10 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
               </button>
 
               <button
-                onClick={(e) => { e.stopPropagation(); setConfirmId(item.id); }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setConfirmId(item.id);
+                }}
                 aria-label="Delete summary"
                 className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded opacity-0 group-hover:opacity-100 text-text-muted hover:text-error hover:bg-error/10 transition-all"
               >
@@ -86,4 +91,3 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
     </>
   );
 };
-

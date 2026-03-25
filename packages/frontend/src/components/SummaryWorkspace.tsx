@@ -1,21 +1,31 @@
 import { SummaryContent } from "./SummaryContent";
 import { LanguageSelect, ToneSelect, StyleSelect } from "./SummarySelects";
 import { useSummaryWorkspace } from "../hooks/useSummaryWorkspace";
+import { SummaryMeta } from "../hooks/useSummaryHistory";
 
 interface Props {
   selectedId: number | null;
   password: string;
   passwordRequired: boolean;
-  onSummarized: (id: number, meta: { language: string; tone: string; style: string }) => void;
+  onSummarized: (id: number, meta: SummaryMeta) => void;
 }
 
-export const SummaryWorkspace = ({ selectedId, password, passwordRequired, onSummarized }: Props) => {
+export const SummaryWorkspace = ({
+  selectedId,
+  password,
+  passwordRequired,
+  onSummarized,
+}: Props) => {
   const {
     mode,
-    inputText, setInputText,
-    language, setLanguage,
-    tone, setTone,
-    style, setStyle,
+    inputText,
+    setInputText,
+    language,
+    setLanguage,
+    tone,
+    setTone,
+    style,
+    setStyle,
     originalText,
     summaryText,
     isLoadingDetail,
@@ -35,9 +45,7 @@ export const SummaryWorkspace = ({ selectedId, password, passwordRequired, onSum
 
   return (
     <div className="space-y-5">
-      {mode === "new" && (
-        <h2 className="text-2xl font-semibold text-text">New summary</h2>
-      )}
+      {mode === "new" && <h2 className="text-2xl font-semibold text-text">New summary</h2>}
 
       {mode === "new" ? (
         <div className="space-y-3">
@@ -103,8 +111,12 @@ export const SummaryWorkspace = ({ selectedId, password, passwordRequired, onSum
           className="ml-auto rounded-md bg-primary px-5 py-2 text-sm font-medium text-white transition-all hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
           {mode === "new"
-            ? isStreaming ? "Summarizing…" : "Summarize →"
-            : isRegenerating ? "Regenerating…" : "Regenerate ↺"}
+            ? isStreaming
+              ? "Summarizing…"
+              : "Summarize →"
+            : isRegenerating
+              ? "Regenerating…"
+              : "Regenerate ↺"}
         </button>
       </div>
 

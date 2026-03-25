@@ -1,24 +1,44 @@
 import { useState } from "react";
-import { AppHeader } from "./components/AppHeader";
+import { Header } from "./components/Header";
 import { Sidebar } from "./components/Sidebar";
 import { SummaryWorkspace } from "./components/SummaryWorkspace";
 import { useHealth } from "./hooks/useHealth";
 import { usePassword } from "./hooks/usePassword";
-import { useSummaryHistory } from "./hooks/useSummaryHistory";
+import { SummaryMeta, useSummaryHistory } from "./hooks/useSummaryHistory";
 
 export default function App() {
   const health = useHealth();
   const { password, setPassword } = usePassword();
-  const { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete } = useSummaryHistory();
+  const { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete } =
+    useSummaryHistory();
   const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const onMenuOpen = () => setDrawerOpen(true);
+
+  const onNew = () => {
+    setSelectedId(null);
+    setDrawerOpen(false);
+  };
+
+  const onSelect = (id: number) => {
+    setSelectedId(id);
+    setDrawerOpen(false);
+  };
+
+  const onDelete = (id: number) => handleDelete(id);
+
+  const onSummarized = (id: number, meta: SummaryMeta) => {
+    handleSummarized(id, meta);
+    setSelectedId(id);
+  };
 
   return (
     <div className="min-h-screen bg-bg text-text flex flex-col">
-      <AppHeader
+      <Header
         password={password}
         onPasswordChange={setPassword}
         health={health}
-        onMenuOpen={() => setDrawerOpen(true)}
+        onMenuOpen={onMenuOpen}
       />
 
       <div className="flex flex-1 overflow-hidden">
@@ -28,9 +48,9 @@ export default function App() {
           pendingId={pendingId}
           isOpen={drawerOpen}
           onClose={() => setDrawerOpen(false)}
-          onNew={() => { setSelectedId(null); setDrawerOpen(false); }}
-          onSelect={(id) => { setSelectedId(id); setDrawerOpen(false); }}
-          onDelete={handleDelete}
+          onNew={onNew}
+          onSelect={onSelect}
+          onDelete={onDelete}
         />
 
         <main className="flex-1 overflow-y-auto px-4 py-6 md:px-8 md:py-8">
@@ -39,7 +59,7 @@ export default function App() {
               selectedId={selectedId}
               password={password}
               passwordRequired={health?.passwordRequired ?? false}
-              onSummarized={(id, meta) => { handleSummarized(id, meta); setSelectedId(id); }}
+              onSummarized={onSummarized}
             />
           </div>
         </main>

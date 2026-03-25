@@ -13,7 +13,16 @@ interface Props {
   onDelete: (id: number) => Promise<void>;
 }
 
-export const Sidebar = ({ items, selectedId, pendingId, isOpen, onClose, onNew, onSelect, onDelete }: Props) => (
+export const Sidebar = ({
+  items,
+  selectedId,
+  pendingId,
+  isOpen,
+  onClose,
+  onNew,
+  onSelect,
+  onDelete,
+}: Props) => (
   <>
     <div
       className={`fixed inset-0 z-40 bg-black/50 md:hidden transition-opacity duration-300 ${

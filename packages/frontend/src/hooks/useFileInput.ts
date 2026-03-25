@@ -47,7 +47,8 @@ export function useFileInput(onError: (msg: string) => void) {
   }
 
   return {
-    inputText, setInputText,
+    inputText,
+    setInputText,
     dragging,
     fileInputRef,
     handleFileChange,

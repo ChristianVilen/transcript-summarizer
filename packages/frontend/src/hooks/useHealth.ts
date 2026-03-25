@@ -6,7 +6,10 @@ export function useHealth() {
   const [health, setHealth] = useState<HealthResponse | null>(null);
 
   useEffect(() => {
-    api.get<HealthResponse>("/api/health").then(setHealth).catch(() => null);
+    api
+      .get<HealthResponse>("/api/health")
+      .then(setHealth)
+      .catch(() => null);
   }, []);
 
   return health;

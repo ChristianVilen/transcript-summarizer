@@ -8,7 +8,7 @@ interface Props {
   onMenuOpen: () => void;
 }
 
-export const AppHeader = ({ password, onPasswordChange, health, onMenuOpen }: Props) => (
+export const Header = ({ password, onPasswordChange, health, onMenuOpen }: Props) => (
   <header className="border-b border-border px-4 py-3 md:px-6 md:py-4 shrink-0">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -31,7 +31,9 @@ export const AppHeader = ({ password, onPasswordChange, health, onMenuOpen }: Pr
           className="px-2 py-1 text-xs md:text-sm md:px-3 rounded-md border border-border bg-surface-raised text-text placeholder:text-text-muted/50 focus:border-primary focus:outline-none transition-colors w-24 md:w-auto"
         />
         {health && (
-          <span className={`hidden md:inline text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}>
+          <span
+            className={`hidden md:inline text-xs ${health.status === "ok" ? "text-secondary" : "text-error"}`}
+          >
             Backend health: {health.status}
           </span>
         )}
