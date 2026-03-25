@@ -30,17 +30,20 @@ interface LanguageProps {
 }
 
 export const LanguageSelect = ({ value, onChange, size = "md" }: LanguageProps) => (
-  <select
-    id="language"
-    name="language"
-    value={value}
-    onChange={(e) => onChange(e.target.value)}
-    className={selectClass(size)}
-  >
-    {LANGUAGES.map((l) => (
-      <option key={l}>{l}</option>
-    ))}
-  </select>
+  <label className="flex flex-col gap-1">
+    <span className="sr-only">Language</span>
+    <select
+      id="language"
+      name="language"
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      className={selectClass(size)}
+    >
+      {LANGUAGES.map((l) => (
+        <option key={l}>{l}</option>
+      ))}
+    </select>
+  </label>
 );
 
 interface ToneProps {
@@ -56,19 +59,22 @@ export const ToneSelect = ({
   size = "md",
   showDescription = false,
 }: ToneProps) => (
-  <select
-    id="tone"
-    name="tone"
-    value={value}
-    onChange={(e) => onChange(e.target.value as Tone)}
-    className={selectClass(size)}
-  >
-    {TONE_OPTIONS.map((t) => (
-      <option key={t.value} value={t.value}>
-        {showDescription ? `${t.label} - ${t.description}` : t.label}
-      </option>
-    ))}
-  </select>
+  <label className="flex flex-col gap-1">
+    <span className="sr-only">Tone</span>
+    <select
+      id="tone"
+      name="tone"
+      value={value}
+      onChange={(e) => onChange(e.target.value as Tone)}
+      className={selectClass(size)}
+    >
+      {TONE_OPTIONS.map((t) => (
+        <option key={t.value} value={t.value}>
+          {showDescription ? `${t.label} - ${t.description}` : t.label}
+        </option>
+      ))}
+    </select>
+  </label>
 );
 
 interface StyleProps {
@@ -78,14 +84,17 @@ interface StyleProps {
 }
 
 export const StyleSelect = ({ value, onChange, size = "md" }: StyleProps) => (
-  <select
-    id="style"
-    name="style"
-    value={value}
-    onChange={(e) => onChange(e.target.value as "paragraph" | "bullets")}
-    className={selectClass(size)}
-  >
-    <option value="paragraph">Paragraph</option>
-    <option value="bullets">Bullets</option>
-  </select>
+  <label className="flex flex-col gap-1">
+    <span className="sr-only">Style</span>
+    <select
+      id="style"
+      name="style"
+      value={value}
+      onChange={(e) => onChange(e.target.value as "paragraph" | "bullets")}
+      className={selectClass(size)}
+    >
+      <option value="paragraph">Paragraph</option>
+      <option value="bullets">Bullets</option>
+    </select>
+  </label>
 );

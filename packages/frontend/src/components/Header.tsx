@@ -29,6 +29,7 @@ export const Header = ({
       </div>
 
       <div className="flex items-center gap-3">
+        <label htmlFor="ai-password" className="sr-only">AI Password</label>
         <input
           id="ai-password"
           name="ai-password"

@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { SummaryContent } from "./SummaryContent";
 import { LanguageSelect, ToneSelect, StyleSelect } from "./SummarySelects";
 import { useSummaryWorkspace } from "../hooks/useSummaryWorkspace";
@@ -43,10 +44,17 @@ export const SummaryWorkspace = ({
     handleRegenerate,
   } = useSummaryWorkspace({ selectedId, onSummarized });
 
+  const containerRef = useRef<HTMLDivElement>(null);
   const isNew = mode === "new";
 
+  useEffect(() => {
+    if (!isNew && selectedId !== null) {
+      containerRef.current?.focus();
+    }
+  }, [isNew, selectedId]);
+
   return (
-    <div className="space-y-5">
+    <div ref={containerRef} tabIndex={-1} className="space-y-5 outline-none">
       {isNew && <h2 className="text-2xl font-semibold text-text">New summary</h2>}
 
       {isNew ? (
@@ -72,6 +80,7 @@ export const SummaryWorkspace = ({
               </span>
             )}
           </div>
+          <label htmlFor="input-text" className="sr-only">Transcript text</label>
           <textarea
             id="input-text"
             name="input-text"
@@ -125,13 +134,13 @@ export const SummaryWorkspace = ({
       </div>
 
       {error && (
-        <p className="rounded-md border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
+        <p role="alert" className="rounded-md border border-error/30 bg-error/10 px-4 py-3 text-sm text-error">
           {error}
         </p>
       )}
 
       {summaryText !== null && (
-        <section className="space-y-2">
+        <section aria-live="polite" className="space-y-2">
           <h2 className="text-xs font-semibold uppercase tracking-widest text-text-muted opacity-60">
             Summary
           </h2>

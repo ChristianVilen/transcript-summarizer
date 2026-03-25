@@ -66,7 +66,7 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
             >
               <p className="text-sm font-medium truncate">
                 {isPending ? (
-                  <span className="italic opacity-50">Generating title...</span>
+                  <span className="italic opacity-50" role="status">Generating title...</span>
                 ) : (
                   (item.title ?? "Untitled")
                 )}
@@ -96,7 +96,7 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
                   setConfirmId(item.id);
                 }}
                 aria-label="Delete summary"
-                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded opacity-0 group-hover:opacity-100 text-text-muted hover:text-error hover:bg-error/10 transition-all"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded opacity-0 group-hover:opacity-100 focus:opacity-100 text-text-muted hover:text-error hover:bg-error/10 transition-all"
               >
                 <TrashIcon />
               </button>
