@@ -113,3 +113,10 @@ This repo includes a couple of Claude Code skills in `.claude/skills/` to make c
 
 - **railway-cli** - check logs, inspect deployments, manage env vars, SSH into the service
 - **kysely-cli** - create and run migrations, seed the database, run one-off SQL queries
+
+## Future improvements
+
+- scaling to more than 1 user -> auth, data seperation per account
+- supporting more filetypes like pdf and doc
+- dictation mode
+- summaries per customer -> enables us to get a patient history analysis
