@@ -43,11 +43,13 @@ export const SummaryWorkspace = ({
     handleRegenerate,
   } = useSummaryWorkspace({ selectedId, onSummarized });
 
+  const isNew = mode === "new";
+
   return (
     <div className="space-y-5">
-      {mode === "new" && <h2 className="text-2xl font-semibold text-text">New summary</h2>}
+      {isNew && <h2 className="text-2xl font-semibold text-text">New summary</h2>}
 
-      {mode === "new" ? (
+      {isNew ? (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <input
@@ -101,16 +103,16 @@ export const SummaryWorkspace = ({
         <ToneSelect value={tone} onChange={setTone} />
         <StyleSelect value={style} onChange={setStyle} />
         <button
-          onClick={mode === "new" ? handleSubmit : handleRegenerate}
+          onClick={isNew ? handleSubmit : handleRegenerate}
           disabled={
-            mode === "new"
+            isNew
               ? !inputText.trim() || isLoading || (passwordRequired && !password)
               : !originalText || isLoading
           }
           title={passwordRequired && !password ? "Enter your AI password to summarize" : undefined}
-          className="ml-auto rounded-md bg-primary px-5 py-2 text-sm font-medium text-white transition-all hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed"
+          className="btn-primary ml-auto rounded-md bg-primary px-5 py-2 text-sm font-medium text-white transition-all hover:bg-primary-hover disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {mode === "new"
+          {isNew
             ? isStreaming
               ? "Summarizing…"
               : "Summarize →"

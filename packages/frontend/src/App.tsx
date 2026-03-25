@@ -5,8 +5,10 @@ import { SummaryWorkspace } from "./components/SummaryWorkspace";
 import { useHealth } from "./hooks/useHealth";
 import { usePassword } from "./hooks/usePassword";
 import { SummaryMeta, useSummaryHistory } from "./hooks/useSummaryHistory";
+import { useTheme } from "./hooks/useTheme";
 
 export default function App() {
+  const { theme, toggle: toggleTheme } = useTheme();
   const health = useHealth();
   const { password, setPassword } = usePassword();
   const { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete } =
@@ -39,6 +41,8 @@ export default function App() {
         onPasswordChange={setPassword}
         health={health}
         onMenuOpen={onMenuOpen}
+        theme={theme}
+        onThemeToggle={toggleTheme}
       />
 
       <div className="flex flex-1 overflow-hidden">

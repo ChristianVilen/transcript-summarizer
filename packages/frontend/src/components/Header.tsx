@@ -1,14 +1,16 @@
 import type { HealthResponse } from "@gosta-assignemnt/shared";
-import { MenuIcon } from "./icons";
+import { MenuIcon, MoonIcon, SunIcon } from "./icons";
 
 interface Props {
   password: string;
   onPasswordChange: (value: string) => void;
   health: HealthResponse | null;
   onMenuOpen: () => void;
+  theme: "light" | "dark";
+  onThemeToggle: () => void;
 }
 
-export const Header = ({ password, onPasswordChange, health, onMenuOpen }: Props) => (
+export const Header = ({ password, onPasswordChange, health, onMenuOpen, theme, onThemeToggle }: Props) => (
   <header className="border-b border-border px-4 py-3 md:px-6 md:py-4 shrink-0">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
@@ -22,7 +24,7 @@ export const Header = ({ password, onPasswordChange, health, onMenuOpen }: Props
         <h1 className="text-xl font-semibold">Transcript Summarizer</h1>
       </div>
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3">
         <input
           type="password"
           placeholder="AI Password"
@@ -37,6 +39,13 @@ export const Header = ({ password, onPasswordChange, health, onMenuOpen }: Props
             Backend health: {health.status}
           </span>
         )}
+        <button
+          onClick={onThemeToggle}
+          aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+          className="p-1.5 rounded-md text-text-muted hover:text-text hover:bg-surface-raised transition-colors"
+        >
+          {theme === "dark" ? <SunIcon /> : <MoonIcon />}
+        </button>
       </div>
     </div>
   </header>

@@ -33,7 +33,7 @@ export const Sidebar = ({
 
     <aside
       className={`
-        fixed inset-y-0 left-0 z-50 flex flex-col bg-bg border-r border-border
+        fixed inset-y-0 left-0 z-50 flex flex-col bg-surface border-r border-border
         w-72 transition-transform duration-300 ease-in-out
         md:relative md:inset-auto md:z-auto md:w-64 md:translate-x-0 md:flex
         ${isOpen ? "translate-x-0" : "-translate-x-full"}
@@ -44,8 +44,8 @@ export const Sidebar = ({
           onClick={onNew}
           className={`w-full flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
             selectedId === null
-              ? "bg-primary/10 text-primary border border-primary/25"
-              : "text-text-muted hover:bg-surface hover:text-text border border-transparent"
+              ? "bg-primary/[.15] text-primary border border-primary/30"
+              : "text-text-muted hover:bg-surface-raised hover:text-text border border-transparent"
           }`}
         >
           <ComposeIcon size={13} />

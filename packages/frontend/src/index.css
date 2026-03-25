@@ -4,7 +4,9 @@
   font-family: "Outfit", sans-serif;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: "Syne", sans-serif;
 }
 
@@ -38,4 +40,38 @@ h1, h2, h3 {
   --color-error: #f06070;
   --color-warning: #f0a050;
   --color-info: #60a0f0;
+}
+
+/* Light theme — colors picked from gostalabs.com */
+:root.light .btn-primary:disabled {
+  opacity: 1;
+  background-color: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-raised));
+  color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+  cursor: not-allowed;
+}
+
+:root.light {
+  --color-bg: #fcf9f0;
+  --color-surface: #f6f6f6;
+  --color-surface-raised: #eeeded;
+  --color-border: #d3d3d3;
+
+  --color-text: #302f2d;
+  --color-text-muted: #6f6c67;
+
+  /* Navy blue */
+  --color-primary: #162b4c;
+  --color-primary-hover: #09172e;
+
+  --color-secondary: #2ab888;
+  --color-secondary-hover: #34d8a0;
+
+  /* Mauve pink */
+  --color-accent: #c76cab;
+  --color-accent-hover: #b05a9a;
+
+  --color-success: #2ab888;
+  --color-error: #ea384c;
+  --color-warning: #d4820a;
+  --color-info: #1740f6;
 }

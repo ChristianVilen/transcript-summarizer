@@ -50,7 +50,7 @@ export const History = ({ items, selectedId, pendingId, onSelect, onDelete }: Pr
                 className={`w-full text-left rounded-md px-3 py-2.5 pr-9 transition-colors ${
                   isSelected
                     ? "bg-primary/20 text-text"
-                    : "hover:bg-surface text-text-muted hover:text-text"
+                    : "hover:bg-surface-raised text-text-muted hover:text-text"
                 }`}
               >
                 <p className="text-sm font-medium truncate">
