@@ -73,6 +73,8 @@ export const SummaryWorkspace = ({
             )}
           </div>
           <textarea
+            id="input-text"
+            name="input-text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             onDragOver={handleDragOver}

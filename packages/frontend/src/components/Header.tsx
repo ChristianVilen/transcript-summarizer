@@ -33,6 +33,8 @@ export const Header = ({
 
       <div className="flex items-center gap-3">
         <input
+          id="ai-password"
+          name="ai-password"
           type="password"
           placeholder="AI Password"
           value={password}

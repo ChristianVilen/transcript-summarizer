@@ -30,7 +30,13 @@ interface LanguageProps {
 }
 
 export const LanguageSelect = ({ value, onChange, size = "md" }: LanguageProps) => (
-  <select value={value} onChange={(e) => onChange(e.target.value)} className={selectClass(size)}>
+  <select
+    id="language"
+    name="language"
+    value={value}
+    onChange={(e) => onChange(e.target.value)}
+    className={selectClass(size)}
+  >
     {LANGUAGES.map((l) => (
       <option key={l}>{l}</option>
     ))}
@@ -51,6 +57,8 @@ export const ToneSelect = ({
   showDescription = false,
 }: ToneProps) => (
   <select
+    id="tone"
+    name="tone"
     value={value}
     onChange={(e) => onChange(e.target.value as Tone)}
     className={selectClass(size)}
@@ -71,6 +79,8 @@ interface StyleProps {
 
 export const StyleSelect = ({ value, onChange, size = "md" }: StyleProps) => (
   <select
+    id="style"
+    name="style"
     value={value}
     onChange={(e) => onChange(e.target.value as "paragraph" | "bullets")}
     className={selectClass(size)}
