@@ -2,26 +2,44 @@ import { useEffect, useRef, useState } from "react";
 import type { SummaryListItem } from "@gosta-assignemnt/shared";
 import { api } from "../lib/api";
 
+function getUrlId(): number | null {
+  const raw = new URLSearchParams(window.location.search).get("id");
+  const n = raw !== null ? Number(raw) : NaN;
+  return Number.isFinite(n) && n > 0 ? n : null;
+}
+
 export function useSummaryHistory() {
   const [history, setHistory] = useState<SummaryListItem[]>([]);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [selectedId, setSelectedId] = useState<number | null>(getUrlId);
   const [pendingId, setPendingId] = useState<number | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
-    fetchHistory(true);
+    fetchHistory();
     return () => {
       abortRef.current?.abort();
     };
   }, []);
 
-  function fetchHistory(autoSelect = false) {
+  function selectId(id: number | null) {
+    setSelectedId(id);
+    const url = new URL(window.location.href);
+    if (id === null) {
+      url.searchParams.delete("id");
+    } else {
+      url.searchParams.set("id", String(id));
+    }
+    window.history.replaceState(null, "", url.toString());
+  }
+
+  function fetchHistory() {
     api
       .get<SummaryListItem[]>("/api/ai/summaries")
       .then((items) => {
         setHistory(items);
-        if (autoSelect && items.length > 0) {
-          setSelectedId(items[0].id);
+        const urlId = getUrlId();
+        if (urlId !== null && !items.some((i) => i.id === urlId)) {
+          selectId(null);
         }
       })
       .catch(() => null);
@@ -52,12 +70,12 @@ export function useSummaryHistory() {
   async function handleDelete(id: number) {
     await api.delete(`/api/ai/summaries/${id}`);
     setHistory((prev) => prev.filter((i) => i.id !== id));
-    if (selectedId === id) setSelectedId(null);
+    if (selectedId === id) selectId(null);
     if (pendingId === id) {
       abortRef.current?.abort();
       setPendingId(null);
     }
   }
 
-  return { history, selectedId, setSelectedId, pendingId, handleSummarized, handleDelete };
+  return { history, selectedId, setSelectedId: selectId, pendingId, handleSummarized, handleDelete };
 }
