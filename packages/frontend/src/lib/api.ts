@@ -67,11 +67,13 @@ async function postStream<T>(
   body: unknown,
   schema: ZodType<T>,
   onMessage: (msg: T) => void,
+  signal?: AbortSignal,
 ): Promise<void> {
   const res = await fetch(url, {
     method: "POST",
     headers: aiHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(body),
+    signal,
   });
   if (!res.ok) throw new Error(`POST ${url}: ${res.status}`);
   const reader = res.body?.getReader();

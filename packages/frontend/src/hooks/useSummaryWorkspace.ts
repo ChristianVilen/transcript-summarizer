@@ -34,7 +34,15 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const abortRef = useRef<AbortController | null>(null);
+
   const fileInput = useFileInput(setError);
+
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
 
   useEffect(() => {
     const isNewSelection = selectedId !== null && selectedId !== viewIdRef.current;
@@ -72,6 +80,10 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
   }
 
   async function runStream(text: string) {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     let streamedText = "";
     let doneId: number | null = null;
     let streamError: string | null = null;
@@ -90,6 +102,7 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
           streamError = msg.message;
         }
       },
+      controller.signal,
     );
 
     if (streamError) {
@@ -114,6 +127,7 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
         onSummarized(doneId, { language, tone, style });
       }
     } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
       setError(e instanceof Error ? e.message : "Something went wrong");
     } finally {
       setIsStreaming(false);
@@ -132,6 +146,7 @@ export function useSummaryWorkspace({ selectedId, onSummarized }: Options) {
         onSummarized(doneId, { language, tone, style });
       }
     } catch (e) {
+      if (e instanceof DOMException && e.name === "AbortError") return;
       setError(e instanceof Error ? e.message : "Regeneration failed");
     } finally {
       setIsRegenerating(false);
