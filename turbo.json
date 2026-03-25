@@ -5,6 +5,10 @@
       "dependsOn": ["^build"],
       "outputs": ["dist/**"]
     },
+    "@gosta-assignemnt/frontend#build": {
+      "dependsOn": ["^build"],
+      "outputs": ["../backend/public/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true
