@@ -10,7 +10,14 @@ interface Props {
   onThemeToggle: () => void;
 }
 
-export const Header = ({ password, onPasswordChange, health, onMenuOpen, theme, onThemeToggle }: Props) => (
+export const Header = ({
+  password,
+  onPasswordChange,
+  health,
+  onMenuOpen,
+  theme,
+  onThemeToggle,
+}: Props) => (
   <header className="border-b border-border px-4 py-3 md:px-6 md:py-4 shrink-0">
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">

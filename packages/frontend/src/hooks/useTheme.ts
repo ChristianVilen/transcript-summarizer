@@ -8,9 +8,7 @@ const STORAGE_KEY = `${APP_PREFIX}:theme`;
 function getInitialTheme(): Theme {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved === "light" || saved === "dark") return saved;
-  return window.matchMedia("(prefers-color-scheme: light)").matches
-    ? "light"
-    : "dark";
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 }
 
 export function useTheme() {
