@@ -43,10 +43,16 @@ h3 {
 }
 
 /* Light theme — colors picked from gostalabs.com */
+:root.light .btn-primary {
+  background-color: var(--color-accent);
+}
+:root.light .btn-primary:hover:not(:disabled) {
+  background-color: var(--color-accent-hover);
+}
 :root.light .btn-primary:disabled {
   opacity: 1;
-  background-color: color-mix(in srgb, var(--color-primary) 12%, var(--color-surface-raised));
-  color: color-mix(in srgb, var(--color-primary) 45%, var(--color-border));
+  background-color: color-mix(in srgb, var(--color-accent) 12%, var(--color-surface-raised));
+  color: color-mix(in srgb, var(--color-accent) 45%, var(--color-border));
   cursor: not-allowed;
 }
 
