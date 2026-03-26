@@ -11,7 +11,7 @@ import type { SummaryListItem, SummaryDetail } from "@gosta-assignemnt/shared";
 
 export const aiRoute = new Hono();
 
-aiRoute.use("/*", async (c, next) => {
+const requirePassword = async (c: Parameters<Parameters<typeof aiRoute.use>[0]>[0], next: () => Promise<void>) => {
   if (!config.ai.password) {
     await next();
     return;
@@ -23,9 +23,9 @@ aiRoute.use("/*", async (c, next) => {
   }
 
   await next();
-});
+};
 
-aiRoute.post("/summarize", async (c) => {
+aiRoute.post("/summarize", requirePassword, async (c) => {
   let rawBody: unknown;
   try {
     rawBody = await c.req.json();
@@ -113,7 +113,7 @@ aiRoute.get("/summaries/:id", async (c) => {
   } satisfies SummaryDetail);
 });
 
-aiRoute.get("/summaries/:id/title-stream", async (c) => {
+aiRoute.get("/summaries/:id/title-stream", requirePassword, async (c) => {
   const parsed = idParamSchema.safeParse(c.req.param());
   if (!parsed.success) {
     return c.json({ error: parsed.error.flatten().fieldErrors }, 400);
@@ -170,7 +170,7 @@ aiRoute.get("/summaries/:id/title-stream", async (c) => {
   });
 });
 
-aiRoute.delete("/summaries/:id", async (c) => {
+aiRoute.delete("/summaries/:id", requirePassword, async (c) => {
   const parsed = idParamSchema.safeParse(c.req.param());
   if (!parsed.success) {
     return c.json({ error: parsed.error.flatten().fieldErrors }, 400);
