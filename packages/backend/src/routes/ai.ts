@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import type { MiddlewareHandler } from "hono";
 import { streamSSE } from "hono/streaming";
 import { summarizeStream, generateTitle } from "../lib/ai.js";
 import { AIError } from "../lib/error.js";
@@ -11,7 +12,7 @@ import type { SummaryListItem, SummaryDetail } from "@gosta-assignemnt/shared";
 
 export const aiRoute = new Hono();
 
-const requirePassword = async (c: Parameters<Parameters<typeof aiRoute.use>[0]>[0], next: () => Promise<void>) => {
+const requirePassword: MiddlewareHandler = async (c, next) => {
   if (!config.ai.password) {
     await next();
     return;
