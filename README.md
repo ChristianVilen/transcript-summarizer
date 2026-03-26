@@ -125,3 +125,4 @@ This repo includes a couple of Claude Code skills in `.claude/skills/` to make c
 - caching
 - infra as code
 - playwright tests (now used playwright-cli with Claude)
+- generate types from DB schema
