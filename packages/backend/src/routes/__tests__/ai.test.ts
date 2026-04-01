@@ -1,5 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeAll, beforeEach, afterAll } from "vitest";
 import { Hono } from "hono";
+import { createTestDb } from "../../test/dbHelper.js";
 
 vi.mock("../../lib/config.js", () => ({
   config: { ai: { provider: "anthropic", password: null } },
@@ -21,27 +22,13 @@ vi.mock("../../lib/ai.js", () => ({
   },
 }));
 
-// vi.hoisted ensures mockDb is defined before vi.mock factories run (which are hoisted to top)
-const mockDb = vi.hoisted(() => ({
-  insertInto: vi.fn(),
-  updateTable: vi.fn(),
-  selectFrom: vi.fn(),
-  deleteFrom: vi.fn(),
-  values: vi.fn(),
-  set: vi.fn(),
-  select: vi.fn(),
-  selectAll: vi.fn(),
-  where: vi.fn(),
-  returning: vi.fn(),
-  orderBy: vi.fn(),
-  execute: vi.fn(),
-  executeTakeFirst: vi.fn(),
-  executeTakeFirstOrThrow: vi.fn(),
-}));
+const dbRef = vi.hoisted(() => ({ current: null as any }));
 
-// Kysely chain mock: each builder method returns the same object so the
-// fluent chain resolves to the terminal mock (execute / executeTakeFirst).
-vi.mock("../../lib/db.js", () => ({ db: mockDb }));
+vi.mock("../../lib/db.js", () => ({
+  get db() {
+    return dbRef.current;
+  },
+}));
 
 vi.mock("../../lib/titleEvents.js", () => ({
   titleEvents: { once: vi.fn(), emit: vi.fn(), removeListener: vi.fn() },
@@ -55,30 +42,23 @@ import { AIError } from "../../lib/error.js";
 const app = new Hono();
 app.route("/api/ai", aiRoute);
 
-const CHAIN_METHODS = [
-  "insertInto",
-  "updateTable",
-  "selectFrom",
-  "deleteFrom",
-  "values",
-  "set",
-  "select",
-  "selectAll",
-  "where",
-  "returning",
-  "orderBy",
-] as const;
+let cleanup: () => Promise<void>;
+let destroy: () => Promise<void>;
 
-beforeEach(() => {
+beforeAll(async () => {
+  const testDb = await createTestDb();
+  dbRef.current = testDb.db;
+  cleanup = testDb.cleanup;
+  destroy = testDb.destroy;
+});
+
+afterAll(async () => {
+  await destroy();
+});
+
+beforeEach(async () => {
   vi.resetAllMocks();
-  // Restore fluent chaining after resetAllMocks clears all implementations
-  for (const method of CHAIN_METHODS) {
-    vi.mocked(mockDb[method]).mockReturnValue(mockDb);
-  }
-  // Restore defaults for terminal mocks so fire-and-forget chains don't throw
-  mockDb.execute.mockResolvedValue([]);
-  mockDb.executeTakeFirst.mockResolvedValue(undefined);
-  mockDb.executeTakeFirstOrThrow.mockResolvedValue(undefined);
+  await cleanup();
   vi.mocked(generateTitle).mockResolvedValue("Generated Title");
   vi.mocked(summarizeStream as ReturnType<typeof vi.fn>).mockResolvedValue("");
 });
@@ -106,7 +86,6 @@ describe("POST /api/ai/summarize", () => {
       await onChunk("world");
       return "Hello world";
     });
-    mockDb.executeTakeFirstOrThrow.mockResolvedValue({ id: 42 });
 
     const res = await app.request("/api/ai/summarize", {
       method: "POST",
@@ -117,7 +96,7 @@ describe("POST /api/ai/summarize", () => {
     const events = await parseSSE(res);
     expect(events).toContainEqual({ type: "chunk", text: "Hello " });
     expect(events).toContainEqual({ type: "chunk", text: "world" });
-    expect(events).toContainEqual({ type: "done", id: 42 });
+    expect(events).toContainEqual(expect.objectContaining({ type: "done", id: expect.any(Number) }));
   });
 
   it("streams an error event when summarizeStream throws AIError", async () => {
@@ -141,25 +120,25 @@ describe("POST /api/ai/summarize", () => {
 
 describe("GET /api/ai/summaries/:id", () => {
   it("returns 200 with the full summary detail", async () => {
-    const fakeSummary = {
-      id: 1,
-      title: "Follow-up visit",
-      language: "English",
-      tone: "neutral",
-      style: "paragraph",
-      created_at: "2026-01-01T00:00:00.000Z",
-      original_text: "Transcript text",
-      summary: "Patient is stable.",
-    };
-    mockDb.executeTakeFirst.mockResolvedValue(fakeSummary);
+    const row = await dbRef.current
+      .insertInto("summaries")
+      .values({
+        original_text: "Transcript text",
+        summary: "Patient is stable.",
+        language: "English",
+        style: "paragraph",
+        tone: "neutral",
+        title: "Follow-up visit",
+      })
+      .returning("id")
+      .executeTakeFirstOrThrow();
 
-    const res = await app.request("/api/ai/summaries/1");
+    const res = await app.request(`/api/ai/summaries/${row.id}`);
     expect(res.status).toBe(200);
-    expect(await res.json()).toMatchObject({ id: 1, summary: "Patient is stable." });
+    expect(await res.json()).toMatchObject({ id: row.id, summary: "Patient is stable." });
   });
 
   it("returns 404 when the summary does not exist", async () => {
-    mockDb.executeTakeFirst.mockResolvedValue(undefined);
     const res = await app.request("/api/ai/summaries/99");
     expect(res.status).toBe(404);
   });
@@ -167,9 +146,20 @@ describe("GET /api/ai/summaries/:id", () => {
 
 describe("DELETE /api/ai/summaries/:id", () => {
   it("returns 200 { ok: true } when the summary is deleted", async () => {
-    mockDb.executeTakeFirst.mockResolvedValue({ numDeletedRows: 1n });
+    const row = await dbRef.current
+      .insertInto("summaries")
+      .values({
+        original_text: "Text",
+        summary: "Summary",
+        language: "English",
+        style: "paragraph",
+        tone: "neutral",
+        title: null,
+      })
+      .returning("id")
+      .executeTakeFirstOrThrow();
 
-    const res = await app.request("/api/ai/summaries/1", { method: "DELETE" });
+    const res = await app.request(`/api/ai/summaries/${row.id}`, { method: "DELETE" });
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
   });
