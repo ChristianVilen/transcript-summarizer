@@ -126,3 +126,4 @@ This repo includes a couple of Claude Code skills in `.claude/skills/` to make c
 - infra as code
 - playwright tests (now used playwright-cli with Claude)
 - generate types from DB schema
+- prompt management -> store prompts in DB with versioning, admin UI to edit live without redeploying. Link summaries to prompt versions for auditability. Could also use tools like [Langfuse](https://langfuse.com), [PromptLayer](https://promptlayer.com), or [Humanloop](https://humanloop.com)
